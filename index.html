@@ -3,167 +3,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AWEZA TV - وەشانە جێگیرەکە</title>
+    <title>AWEZA TV - PRO</title>
     <link href="https://vjs.zencdn.net/7.20.3/video-js.css" rel="stylesheet" />
     <style>
-        :root {
-            --main-red: #e50914;
-            --dark-bg: #0b0b0b;
-            --card-bg: #1a1a1a;
+        :root { --main: #e50914; --bg: #0b0b0b; --card: #1a1a1a; }
+        body { background-color: var(--bg); color: white; font-family: sans-serif; margin: 0; padding-bottom: 50px; }
+        
+        header { 
+            padding: 10px 20px; background: #000; border-bottom: 2px solid var(--main);
+            display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000;
         }
 
-        body {
-            background-color: var(--dark-bg);
-            color: white;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden;
+        .player-box { width: 100%; background: #000; aspect-ratio: 16/9; }
+        .video-js { width: 100%; height: 100%; }
+
+        /* دوگمەی + ی سەرەکی */
+        .add-main-btn {
+            background: var(--main); color: white; border: none; width: 45px; height: 45px;
+            border-radius: 50%; font-size: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center;
         }
 
-        header {
-            padding: 15px;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
-            text-align: center;
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 1000;
+        /* مۆداڵ (پەنجەرەی هەڵبژاردن) */
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 2000; justify-content: center; align-items: center;
         }
+        .modal-content { background: #222; padding: 25px; border-radius: 20px; width: 80%; max-width: 350px; text-align: center; }
+        
+        .opt-btn {
+            display: block; width: 100%; padding: 15px; margin: 10px 0;
+            background: #333; color: white; border-radius: 10px; border: 1px solid #444;
+            cursor: pointer; font-weight: bold; font-size: 16px;
+        }
+        .opt-btn:hover { background: var(--main); }
 
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-            color: var(--main-red);
-            letter-spacing: 2px;
+        .container { padding: 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(105px, 1fr)); gap: 12px; }
+        
+        .card { 
+            background: var(--card); border-radius: 12px; padding: 18px 5px; 
+            text-align: center; cursor: pointer; border: 1px solid #333; font-size: 13px;
+            transition: 0.2s; position: relative;
         }
+        .card:active { transform: scale(0.95); }
+        .active-ch { border-color: var(--main); background: #250406; }
 
-        /* ستایلی پلەیەر */
-        .player-section {
-            width: 100%;
-            margin-top: 60px;
-            background: #000;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-
-        .video-js {
-            width: 100%;
-            aspect-ratio: 16 / 9;
-        }
-
-        /* لیستی کەناڵەکان */
-        .container {
-            padding: 20px;
-        }
-
-        .section-title {
-            font-size: 18px;
-            margin-bottom: 15px;
-            border-right: 4px solid var(--main-red);
-            padding-right: 10px;
-        }
-
-        .channels-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            gap: 12px;
-        }
-
-        .channel-card {
-            background: var(--card-bg);
-            border-radius: 10px;
-            padding: 15px 10px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: 1px solid #333;
-        }
-
-        .channel-card:hover, .active-ch {
-            background: var(--main-red);
-            transform: translateY(-5px);
-            border-color: var(--main-red);
-        }
-
-        .channel-card i {
-            display: block;
-            font-size: 24px;
-            margin-bottom: 8px;
-        }
-
-        .channel-name {
-            font-size: 13px;
-            font-weight: bold;
-        }
-
-        .footer-note {
-            text-align: center;
-            padding: 20px;
-            color: #666;
-            font-size: 12px;
-        }
+        input[type="file"] { display: none; }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="logo">AWEZA TV</div>
+    <div style="font-size:22px; font-weight:bold; color:var(--main);">AWEZA TV</div>
+    <button class="add-main-btn" onclick="toggleModal()">+</button>
 </header>
 
-<div class="player-section">
-    <video id="my-video" class="video-js vjs-big-play-centered" controls preload="auto" poster="https://via.placeholder.com/800x450/000000/ff0000?text=Aweza+TV">
-        <p class="vjs-no-js">بۆ بینینی ئەم ڤیدیۆیە، تکایە JavaScript کارا بکە.</p>
-    </video>
+<div class="player-box">
+    <video id="player" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto"></video>
 </div>
 
 <div class="container">
-    <h2 class="section-title">کەناڵەکان</h2>
-    <div class="channels-grid" id="channelList">
-        </div>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h3 style="margin:0;">کەناڵەکان</h3>
+        <span id="chCount" style="color:#888; font-size:12px;">0 کەناڵ</span>
+    </div>
+    <div class="grid" id="list"></div>
 </div>
 
-<div class="footer-note">
-    هەموو مافێک بۆ AWEZA TV پارێزراوە ٢٠٢٤
+<div class="modal" id="addModal">
+    <div class="modal-content">
+        <h3 style="margin-bottom:20px;">زیادکردنی کەناڵ</h3>
+        
+        <button class="opt-btn" onclick="document.getElementById('fileInput').click()">📁 بارکردنی فایل (M3U)</button>
+        <button class="opt-btn" onclick="addManual()">✍️ زیادکردنی دەستی</button>
+        <button class="opt-btn" style="background:#666; font-size:13px;" onclick="clearAll()">🗑️ سڕینەوەی هەموو لیستەکە</button>
+        
+        <input type="file" id="fileInput" accept=".m3u,.txt" onchange="handleFile(event)">
+        
+        <button onclick="toggleModal()" style="background:none; border:none; color:var(--main); margin-top:15px; cursor:pointer;">داخستن</button>
+    </div>
 </div>
 
 <script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
 <script>
-    const channels = [
-        { name: "ڕووداو", url: "https://lb.rudaw.net/rudawlive/smil:rudaw.smil/playlist.m3u8" },
-        { name: "کوردستان ٢٤", url: "https://live.k24.com/hls/stream.m3u8" },
-        { name: "کوردسات", url: "https://live.kurdstat.com/hls/stream.m3u8" },
-        { name: "NRT", url: "https://nrtlive.b-cdn.net/nrt/index.m3u8" },
-        { name: "وار TV", url: "https://live.waartv.tv/hls/stream.m3u8" }
-    ];
+    const videoPlayer = videojs('player');
+    const listContainer = document.getElementById('list');
+    const countLabel = document.getElementById('chCount');
+    let channels = JSON.parse(localStorage.getItem('iptv_data')) || [];
 
-    const player = videojs('my-video');
-    const grid = document.getElementById('channelList');
-
-    function playChannel(url, element) {
-        // گۆڕینی ڕەنگی دوگمەکە
-        document.querySelectorAll('.channel-card').forEach(c => c.classList.remove('active-ch'));
-        element.classList.add('active-ch');
-
-        // بارکردنی ڤیدیۆکە
-        player.src({
-            src: url,
-            type: 'application/x-mpegURL'
-        });
-        player.play();
-
-        // بردنەوەی شاشە بۆ سەرەوە بۆ بینینی ڤیدیۆکە
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+    function toggleModal() {
+        const modal = document.getElementById('addModal');
+        modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
     }
 
-    // دروستکردنی لیستی کەناڵەکان
-    channels.forEach(ch => {
-        const div = document.createElement('div');
-        div.className = 'channel-card';
-        div.innerHTML = `<div class="channel-name">${ch.name}</div>`;
-        div.onclick = () => playChannel(ch.url, div);
-        grid.appendChild(div);
-    });
-</script>
+    function handleFile(event) {
+        const file = event.target.files[0];
+        if (!file) return;
 
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const lines = e.target.result.split('\n');
+            const newList = [];
+            let currentName = '';
+
+            lines.forEach(line => {
+                line = line.trim();
+                if (line.startsWith('#EXTINF:')) {
+                    currentName = line.split(',').pop();
+                } else if (line.startsWith('http')) {
+                    newList.push({ name: currentName || 'بێ ناو', url: line });
+                    currentName = '';
+                }
+            });
+
+            channels = [...channels, ...newList];
+            saveAndRender();
+            toggleModal();
+        };
+        reader.readAsText(file);
+    }
+
+    function addManual() {
+        const name = prompt("ناوی کەناڵ:");
+        const url = prompt("لینکی کەناڵ:");
+        if (name && url) {
+            channels.push({ name, url });
+            saveAndRender();
+            toggleModal();
+        }
+    }
+
+    function clearAll() {
+        if (confirm("هەموو لیستەکە دەسڕێتەوە، دڵنیایت؟")) {
+            channels = [];
+            saveAndRender();
+            toggleModal();
+        }
+    }
+
+    function saveAndRender() {
+        localStorage.setItem('iptv_data', JSON.stringify(channels));
+        render();
+    }
+
+    function play(url, el) {
+        document.querySelectorAll('.card').forEach(c => c.classList.remove('active-ch'));
+        el.classList.add('active-ch');
+        videoPlayer.src({ src: url, type: 'application/x-mpegURL' });
+        videoPlayer.play();
+        window.scrollTo({top: 0, behavior: 'smooth'});
+    }
+
+    function render() {
+        listContainer.innerHTML = '';
+        countLabel.innerText = channels.length + " کەناڵ";
+        channels.forEach((ch) => {
+            const div = document.createElement('div');
+            div.className = 'card';
+            div.innerHTML = `<b>${ch.name}</b>`;
+            div.onclick = () => play(ch.url, div);
+            listContainer.appendChild(div);
+        });
+    }
+
+    render();
+</script>
 </body>
 </html>
