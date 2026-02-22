@@ -3,44 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AWEZA TV - PC & Mobile</title>
+    <title>AWEZA TV - Categories & Pro</title>
     <link href="https://vjs.zencdn.net/7.20.3/video-js.css" rel="stylesheet" />
     <style>
         :root { --main: #e50914; --bg: #0b0b0b; --card: #1a1a1a; }
         body, html { background-color: var(--bg); color: white; font-family: sans-serif; margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; }
         
         header { height: 60px; padding: 0 15px; background: #000; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--main); position: relative; z-index: 10; }
-        .logo-text { font-size: 18px; font-weight: bold; color: var(--main); }
+        .logo-text { font-size: 20px; font-weight: bold; color: var(--main); letter-spacing: 1px; }
 
-        .tabs { display: flex; background: #111; border-bottom: 1px solid #333; position: relative; z-index: 10; }
-        .tab { flex: 1; padding: 12px; text-align: center; cursor: pointer; font-size: 14px; color: #888; }
-        .tab.active { color: var(--main); border-bottom: 2px solid var(--main); font-weight: bold; }
+        /* بەشی گروپەکان (Categories) */
+        .cat-bar {
+            display: flex; overflow-x: auto; background: #111; padding: 10px; gap: 10px;
+            border-bottom: 1px solid #333; scrollbar-width: none;
+        }
+        .cat-bar::-webkit-scrollbar { display: none; }
+        .cat-item {
+            background: #222; padding: 6px 15px; border-radius: 20px; font-size: 13px;
+            white-space: nowrap; cursor: pointer; border: 1px solid #333; transition: 0.3s;
+        }
+        .cat-item.active { background: var(--main); border-color: var(--main); font-weight: bold; }
 
-        .player-container { width: 100%; background: #000; height: 35vh; position: relative; z-index: 5; transition: 0.3s; }
+        .player-container { width: 100%; background: #000; height: 35vh; position: relative; z-index: 5; }
         .video-js { width: 100%; height: 100%; }
 
-        /* دۆخی سینەما یان فۆڵ سکرین */
-        body.cinema-mode .player-container { 
-            position: fixed; top: 0; left: 0; width: 100vw !important; height: 100vh !important; z-index: 9999; 
-        }
-        body.cinema-mode header, body.cinema-mode .tabs, body.cinema-mode .content-section { display: none !important; }
+        /* دۆخی سینەما */
+        body.cinema-mode .player-container { position: fixed; top: 0; left: 0; width: 100vw !important; height: 100vh !important; z-index: 9999; }
+        body.cinema-mode header, body.cinema-mode .cat-bar, body.cinema-mode .content-section { display: none !important; }
 
-        .content-section { height: calc(65vh - 110px); overflow-y: auto; padding: 15px; position: relative; z-index: 5; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px; }
+        .content-section { height: calc(65vh - 120px); overflow-y: auto; padding: 15px; position: relative; z-index: 5; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 12px; }
         
         .card { background: var(--card); border-radius: 12px; padding: 12px 5px; text-align: center; cursor: pointer; border: 1px solid #333; position: relative; transition: 0.2s; }
-        .card:hover { border-color: var(--main); }
+        .card:active { transform: scale(0.95); }
         .fav-btn { position: absolute; top: 0; left: 0; font-size: 22px; color: rgba(255,255,255,0.2); padding: 8px; z-index: 30; }
         .fav-btn.is-fav { color: var(--main) !important; }
         
-        .ch-logo { width: 45px; height: 45px; margin-bottom: 5px; object-fit: contain; pointer-events: none; }
+        .ch-logo { width: 45px; height: 45px; margin-bottom: 5px; object-fit: contain; pointer-events: none; border-radius: 4px; }
         .ch-name { font-size: 11px; font-weight: bold; pointer-events: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 10001; justify-content: center; align-items: center; }
         .modal-content { background: #1a1a1a; padding: 25px; border-radius: 20px; width: 85%; max-width: 350px; text-align: center; border: 1px solid #333; }
         .opt-btn { display: block; width: 100%; padding: 14px; margin: 10px 0; background: #333; color: white; border-radius: 10px; border: none; cursor: pointer; font-weight: bold; }
         
-        /* سویچ (دوگمەی گۆڕین) */
         .switch-container { display: flex; justify-content: space-between; align-items: center; background: #222; padding: 10px; border-radius: 10px; margin-bottom: 10px; }
         .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
         .switch input { opacity: 0; width: 0; height: 0; }
@@ -48,6 +53,13 @@
         .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
         input:checked + .slider { background-color: var(--main); }
         input:checked + .slider:before { transform: translateX(20px); }
+
+        /* بۆ کۆمپیوتەر */
+        @media (min-width: 1000px) {
+            .grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+            .player-container { height: 50vh; }
+            .content-section { height: calc(50vh - 120px); }
+        }
     </style>
 </head>
 <body>
@@ -61,9 +73,9 @@
     <video id="player" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto" playsinline></video>
 </div>
 
-<div class="tabs">
-    <div class="tab active" id="allTab" onclick="switchTab('all')">کەناڵەکان</div>
-    <div class="tab" id="favTab" onclick="switchTab('fav')">❤️ دڵخواز</div>
+<div class="cat-bar" id="categoryBar">
+    <div class="cat-item active" onclick="filterCat('All', this)">هەمووی</div>
+    <div class="cat-item" onclick="filterCat('Fav', this)">❤️ دڵخواز</div>
 </div>
 
 <div class="content-section">
@@ -72,24 +84,14 @@
 
 <div class="modal" id="settingsModal">
     <div class="modal-content">
-        <h3 style="color:var(--main); margin-bottom:15px;">ڕێکخستنی شاشە</h3>
-        
+        <h3 style="color:var(--main);">ڕێکخستن</h3>
         <div class="switch-container">
-            <span>دۆخی فۆڵ سکرین (Landscape)</span>
-            <label class="switch">
-                <input type="checkbox" id="fsToggle" onchange="updateFSSetting()">
-                <span class="slider"></span>
-            </label>
+            <span>فۆڵ سکرین (Landscape)</span>
+            <label class="switch"><input type="checkbox" id="fsToggle" onchange="updateFSSetting()"><span class="slider"></span></label>
         </div>
-        <p style="font-size: 10px; color: #888; margin-bottom: 20px;">ئەگەر ئەمە چالاک بێت، کاتێک مۆبایل دەسوڕێنیت دەبێتە فۆڵ سکرین.</p>
-
         <hr style="border:0.5px solid #333; margin:15px 0;">
-
         <button class="opt-btn" onclick="document.getElementById('fileInput').click()">📁 بارکردنی فایل</button>
-        <button class="opt-btn" onclick="addManual()">✍️ زیادکردنی دەستی</button>
-        <button class="opt-btn" style="background:#444;" onclick="clearFavs()">❤️ پاککردنی دڵخواز</button>
-        <button class="opt-btn" style="background:#e5091422; color:var(--main);" onclick="clearAll()">🗑️ سڕینەوەی گشت</button>
-        
+        <button class="opt-btn" style="background:#444;" onclick="clearAll()">🗑️ سڕینەوەی گشت داتا</button>
         <input type="file" id="fileInput" accept=".m3u,.txt" onchange="handleFile(event)" style="display:none;">
         <button onclick="toggleModal()" style="background:none; border:none; color:white; margin-top:15px; cursor:pointer;">داخستن</button>
     </div>
@@ -99,51 +101,27 @@
 <script>
     const videoPlayer = videojs('player');
     const listContainer = document.getElementById('list');
+    const categoryBar = document.getElementById('categoryBar');
     let allChannels = JSON.parse(localStorage.getItem('iptv_data')) || [];
     let favorites = JSON.parse(localStorage.getItem('iptv_favs')) || [];
     let fsEnabled = JSON.parse(localStorage.getItem('fs_enabled')) || false;
+    let currentCategory = 'All';
 
     document.getElementById('fsToggle').checked = fsEnabled;
 
-    // چاودێری سوڕاندنی مۆبایل
-    window.addEventListener("orientationchange", function() {
+    window.addEventListener("orientationchange", () => {
         if (!fsEnabled) return;
-        if (window.orientation === 90 || window.orientation === -90) {
-            document.body.classList.add('cinema-mode');
-        } else {
-            document.body.classList.remove('cinema-mode');
-        }
+        document.body.classList.toggle('cinema-mode', (window.orientation === 90 || window.orientation === -90));
     });
-
-    // بۆ کۆمپیوتەر ئەگەر شاشەکە گەورە بوو بە هەڵە نەبێتە فۆڵ سکرین
-    function checkOrientation() {
-        if (!fsEnabled) {
-            document.body.classList.remove('cinema-mode');
-            return;
-        }
-        if (window.innerWidth > window.innerHeight && window.innerWidth < 1000) {
-            document.body.classList.add('cinema-mode');
-        } else {
-            document.body.classList.remove('cinema-mode');
-        }
-    }
-    window.addEventListener('resize', checkOrientation);
 
     function updateFSSetting() {
         fsEnabled = document.getElementById('fsToggle').checked;
         localStorage.setItem('fs_enabled', fsEnabled);
-        checkOrientation();
     }
 
     function toggleModal() {
         const m = document.getElementById('settingsModal');
         m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
-    }
-
-    function switchTab(t) {
-        document.getElementById('allTab').classList.toggle('active', t === 'all');
-        document.getElementById('favTab').classList.toggle('active', t === 'fav');
-        render(t);
     }
 
     function handleFile(e) {
@@ -153,27 +131,44 @@
         reader.onload = function(event) {
             const lines = event.target.result.split('\n');
             let newList = [];
-            let name = '', logo = '';
+            let name = '', logo = '', group = 'بەبێ گروپ';
             lines.forEach(line => {
                 line = line.trim();
                 if (line.startsWith('#EXTINF:')) {
                     const lm = line.match(/tvg-logo="([^"]+)"/);
                     logo = lm ? lm[1] : '';
+                    const gm = line.match(/group-title="([^"]+)"/);
+                    group = gm ? gm[1] : 'بەبێ گروپ';
                     name = line.split(',').pop();
                 } else if (line.startsWith('http')) {
-                    newList.push({ name: name || 'کەناڵ', url: line, logo: logo });
-                    name = ''; logo = '';
+                    newList.push({ name: name || 'کەناڵ', url: line, logo: logo, group: group });
+                    name = ''; logo = ''; group = 'بەبێ گروپ';
                 }
             });
-            allChannels = [...allChannels, ...newList];
-            save(); render('all'); toggleModal();
+            allChannels = newList;
+            save(); createCategories(); render(); toggleModal();
         };
         reader.readAsText(file);
     }
 
-    function addManual() {
-        const n = prompt("ناو:"); const u = prompt("لینک:");
-        if (n && u) { allChannels.push({ name: n, url: u, logo: '' }); save(); render('all'); toggleModal(); }
+    function filterCat(cat, el) {
+        currentCategory = cat;
+        document.querySelectorAll('.cat-item').forEach(i => i.classList.remove('active'));
+        el.classList.add('active');
+        render();
+    }
+
+    function createCategories() {
+        categoryBar.innerHTML = '<div class="cat-item active" onclick="filterCat(\'All\', this)">هەمووی</div><div class="cat-item" onclick="filterCat(\'Fav\', this)">❤️ دڵخواز</div>';
+        const groups = [...new Set(allChannels.map(ch => ch.group))];
+        groups.forEach(g => {
+            if(!g) return;
+            const div = document.createElement('div');
+            div.className = 'cat-item';
+            div.innerText = g;
+            div.onclick = () => filterCat(g, div);
+            categoryBar.appendChild(div);
+        });
     }
 
     function toggleFav(url, event) {
@@ -182,29 +177,31 @@
         if (index > -1) favorites.splice(index, 1);
         else favorites.push(url);
         localStorage.setItem('iptv_favs', JSON.stringify(favorites));
-        render(document.querySelector('.tab.active').id === 'allTab' ? 'all' : 'fav');
-    }
-
-    function clearFavs() {
-        if(confirm("دڵخوازەکان پاکبکرێنەوە؟")) { favorites = []; localStorage.setItem('iptv_favs', "[]"); render('fav'); toggleModal(); }
+        render();
     }
 
     function clearAll() {
-        if(confirm("هەموو کەناڵەکان بسڕێنەوە؟")) { allChannels = []; favorites = []; localStorage.clear(); render('all'); toggleModal(); }
+        if(confirm("دڵنیایت هەموو داتاکان پاکبکرێنەوە؟")) {
+            localStorage.clear(); allChannels = []; favorites = [];
+            location.reload();
+        }
     }
 
     function save() { localStorage.setItem('iptv_data', JSON.stringify(allChannels)); }
 
-    function render(tab) {
+    function render() {
         listContainer.innerHTML = '';
-        const data = tab === 'all' ? allChannels : allChannels.filter(ch => favorites.includes(ch.url));
+        let data = allChannels;
+        if (currentCategory === 'Fav') data = allChannels.filter(ch => favorites.includes(ch.url));
+        else if (currentCategory !== 'All') data = allChannels.filter(ch => ch.group === currentCategory);
+
         data.forEach((ch) => {
             const isFav = favorites.includes(ch.url);
             const div = document.createElement('div');
             div.className = 'card';
             div.innerHTML = `
                 <div class="fav-btn ${isFav ? 'is-fav' : ''}" onclick="toggleFav('${ch.url}', event)">❤</div>
-                <img src="${ch.logo || 'https://cdn-icons-png.flaticon.com/512/716/716429.png'}" class="ch-logo">
+                <img src="${ch.logo || 'https://cdn-icons-png.flaticon.com/512/716/716429.png'}" class="ch-logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/716/716429.png'">
                 <div class="ch-name">${ch.name}</div>
             `;
             div.onclick = () => {
@@ -216,7 +213,9 @@
             listContainer.appendChild(div);
         });
     }
-    render('all');
+
+    createCategories();
+    render();
 </script>
 </body>
 </html>
