@@ -2,21 +2,195 @@
 <html lang="ku" dir="rtl">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
     <title>AWEZA TV</title>
+    <meta name="apple-mobile-web-app-title" content="AWEZA TV">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/716/716429.png">
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/716/716429.png">
+
+    <link href="https://vjs.zencdn.net/7.20.3/video-js.css" rel="stylesheet" />
     <style>
-        body { background: #000; color: white; text-align: center; font-family: sans-serif; padding-top: 50px; }
-        .loading { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 2s linear infinite; margin: 20px auto; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        :root { --primary: #3498db; --active: #2ecc71; --star: #f1c40f; --error: #e74c3c; --bg: #0b0b0b; --sidebar: #151515; }
+        body { margin: 0; font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: white; display: flex; height: 100vh; overflow: hidden; }
+
+        .sidebar { width: 330px; background: var(--sidebar); border-left: 1px solid #333; display: flex; flex-direction: column; transition: 0.3s; }
+        .sidebar.hidden { margin-right: -330px; }
+
+        .header { padding: 15px; border-bottom: 1px solid #333; }
+        .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .settings-btn { background: none; border: none; color: #888; font-size: 22px; cursor: pointer; }
+
+        .btn-group { display: flex; gap: 8px; margin-bottom: 12px; }
+        .add-btn { flex: 1; padding: 10px; border-radius: 8px; border: none; cursor: pointer; color: white; font-size: 12px; font-weight: bold; }
+        .btn-file { background: #2ecc71; }
+        .btn-link { background: var(--primary); }
+
+        .search-box { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #333; background: #000; color: white; outline: none; box-sizing: border-box; }
+
+        .channel-list { flex: 1; overflow-y: auto; padding: 10px; }
+        .channel-item { background: #202020; padding: 10px; margin-bottom: 8px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; border-right: 4px solid transparent; transition: 0.2s; }
+        .channel-item.active { background: #1e272e; border-right-color: var(--active); color: var(--active); }
+        .channel-item.is-fav { border-right-color: var(--star); }
+
+        .logo-img { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; background: #000; }
+        .no-logo { width: 40px; height: 40px; border-radius: 8px; background: #333; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+
+        .star-btn { color: #444; font-size: 18px; cursor: pointer; margin-left: 5px; }
+        .star-btn.active { color: var(--star); }
+        .del-btn { color: #555; font-size: 22px; cursor: pointer; border: none; background: none; padding: 0 10px; }
+        .del-btn:hover { color: var(--error); }
+
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1a1a1a; padding: 25px; border-radius: 15px; z-index: 1000; border: 1px solid #444; width: 300px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .modal input { width: 100%; padding: 10px; margin-bottom: 10px; background: #000; border: 1px solid #333; color: white; border-radius: 5px; box-sizing: border-box; }
+
+        .main { flex: 1; position: relative; background: #000; display: flex; align-items: center; justify-content: center; }
+        .video-js { width: 100% !important; height: 100% !important; }
+        .toggle-btn { position: fixed; bottom: 25px; right: 25px; z-index: 100; background: var(--primary); color: white; border: none; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; font-size: 20px; }
     </style>
 </head>
 <body>
-    <h1>بەخێربێیت بۆ AWEZA TV</h1>
-    <div class="loading"></div>
-    <p>تکایە چاوەڕێ بکە، ئەپەکە خەریکی بارکردنە...</p>
-    
+
+    <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+
+    <div id="settingsModal" class="modal">
+        <h3 style="margin-top:0">ڕێکخستنەکان ⚙️</h3>
+        <label style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            پلەیەری دەرەکی (VLC/MX)
+            <input type="checkbox" id="extPlayerToggle" onchange="saveSettings()">
+        </label>
+        <button onclick="clearAllData()" style="width:100%; background:var(--error); color:white; border:none; padding:10px; border-radius:8px; cursor:pointer;">🗑️ سڕینەوەی هەموو لیستەکە</button>
+        <button onclick="closeSettings()" style="width:100%; background:#444; color:white; border:none; padding:10px; border-radius:8px; cursor:pointer; margin-top:10px;">داخستن</button>
+    </div>
+
+    <div id="linkModal" class="modal">
+        <h3 style="margin-top:0">زیادکردنی کەناڵ 🔗</h3>
+        <input type="text" id="manualName" placeholder="ناوی کەناڵ">
+        <input type="text" id="manualUrl" placeholder="لینکی M3U8">
+        <button onclick="addManualLink()" style="width:100%; background:var(--active); border:none; color:white; padding:10px; border-radius:8px; cursor:pointer;">پاشەکەوت</button>
+        <button onclick="document.getElementById('linkModal').style.display='none'" style="width:100%; background:#444; border:none; color:white; padding:10px; border-radius:8px; cursor:pointer; margin-top:10px;">داخستن</button>
+    </div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="header">
+            <div class="top-nav">
+                <h3 style="margin:0">AWEZA TV</h3>
+                <button class="settings-btn" onclick="openSettings()">⚙️</button>
+            </div>
+            <div class="btn-group">
+                <label for="fileInput" class="add-btn btn-file">📁 فایل</label>
+                <button class="add-btn btn-link" onclick="document.getElementById('linkModal').style.display='block'">🔗 لینک</button>
+            </div>
+            <input type="file" id="fileInput" accept=".m3u,.m3u8" onchange="importFile(this)" style="display:none">
+            <input type="text" id="searchInput" class="search-box" placeholder="بگەڕێ..." oninput="filterChannels()">
+        </div>
+        <div class="channel-list" id="list"></div>
+    </div>
+
+    <div class="main">
+        <video id="my-video" class="video-js vjs-big-play-centered" controls preload="auto"></video>
+    </div>
+
+    <script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
     <script>
-        // ئەمە کۆدە بنچینەییەکەیە، دوای ئەوەی دڵنیا بووین کار دەکات، هەمووی لێرە دادەنێین
-        window.location.href = "https://4116161-sketch.github.io/aweza-tv/index.html";
+        const player = videojs('my-video');
+        let allChannels = JSON.parse(localStorage.getItem('iptv_aweza_v1')) || [];
+        let useExternal = JSON.parse(localStorage.getItem('use_external')) || false;
+        let currentUrl = "";
+
+        function openSettings() { document.getElementById('settingsModal').style.display = 'block'; document.getElementById('extPlayerToggle').checked = useExternal; }
+        function closeSettings() { document.getElementById('settingsModal').style.display = 'none'; }
+        function saveSettings() { useExternal = document.getElementById('extPlayerToggle').checked; localStorage.setItem('use_external', useExternal); }
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('hidden'); }
+
+        function saveAndRefresh() {
+            allChannels.sort((a, b) => (b.fav || false) - (a.fav || false));
+            localStorage.setItem('iptv_aweza_v1', JSON.stringify(allChannels));
+            render(allChannels);
+        }
+
+        function importFile(input) {
+            const file = input.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const lines = e.target.result.split(/\r?\n/);
+                for (let i = 0; i < lines.length; i++) {
+                    if (lines[i].startsWith('#EXTINF')) {
+                        let name = lines[i].substring(lines[i].lastIndexOf(',') + 1).trim();
+                        let logoMatch = lines[i].match(/tvg-logo="([^"]+)"/);
+                        let logo = logoMatch ? logoMatch[1] : "";
+                        let url = lines[i+1]?.trim();
+                        if (url && url.startsWith('http')) allChannels.push({ name, url, logo, fav: false });
+                    }
+                }
+                saveAndRefresh();
+            };
+            reader.readAsText(file);
+        }
+
+        function addManualLink() {
+            const name = document.getElementById('manualName').value;
+            const url = document.getElementById('manualUrl').value;
+            if(name && url) { allChannels.push({ name, url, logo: "", fav: false }); saveAndRefresh(); document.getElementById('linkModal').style.display='none'; }
+        }
+
+        function deleteChannel(event, index) {
+            event.stopPropagation();
+            const channelName = allChannels[index].name;
+            if (confirm(`ئایا دڵنیای دەتەوێت کەناڵی (${channelName}) بسڕیتەوە؟`)) {
+                allChannels.splice(index, 1);
+                saveAndRefresh();
+            }
+        }
+
+        function clearAllData() {
+            if(confirm("ئایا دڵنیای دەتەوێت هەموو کەناڵەکانی AWEZA TV بسڕیتەوە؟")) {
+                allChannels = [];
+                saveAndRefresh();
+                closeSettings();
+            }
+        }
+
+        function render(list) {
+            const listDiv = document.getElementById('list');
+            listDiv.innerHTML = '';
+            list.forEach((ch, index) => {
+                const isPlaying = ch.url === currentUrl;
+                const item = document.createElement('div');
+                item.className = `channel-item ${isPlaying ? 'active' : ''} ${ch.fav ? 'is-fav' : ''}`;
+                
+                let logoHtml = ch.logo ? `<img src="${ch.logo}" class="logo-img" onerror="this.outerHTML='<div class=\'no-logo\'>📺</div>'">` : `<div class="no-logo">📺</div>`;
+
+                item.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:12px; flex:1; overflow:hidden;">
+                        <span class="star-btn ${ch.fav ? 'active' : ''}" onclick="event.stopPropagation(); allChannels[${allChannels.indexOf(ch)}].fav = !allChannels[${allChannels.indexOf(ch)}].fav; saveAndRefresh();">★</span>
+                        ${logoHtml}
+                        <div style="font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${ch.name}</div>
+                    </div>
+                    <button class="del-btn" onclick="deleteChannel(event, ${allChannels.indexOf(ch)})">×</button>
+                `;
+                item.onclick = () => {
+                    if (useExternal) {
+                        window.location.href = `intent:${ch.url}#Intent;package=com.videolan.vlc;type=video/*;end`;
+                    } else {
+                        currentUrl = ch.url;
+                        player.src({ src: ch.url, type: 'application/x-mpegURL' });
+                        player.play();
+                        render(allChannels);
+                    }
+                };
+                listDiv.appendChild(item);
+            });
+        }
+
+        function filterChannels() {
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            render(allChannels.filter(ch => ch.name.toLowerCase().includes(q)));
+        }
+
+        render(allChannels);
     </script>
 </body>
 </html>
