@@ -3,99 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AWEZA TV PRO</title>
+    <title>AWEZA TV Player</title>
     <style>
-        body { background: #050505; color: white; font-family: sans-serif; text-align: center; margin: 0; }
-        .header { padding: 25px; background: #1a1a1a; font-size: 26px; border-bottom: 3px solid #e50914; }
-        .video-box { width: 100%; background: #000; aspect-ratio: 16/9; margin-bottom: 10px; }
-        video { width: 100%; height: 100%; }
-        .btn-group { padding: 15px; display: flex; flex-direction: column; gap: 10px; align-items: center; }
-        
-        .vlc-btn {
-            background: #ff9800; color: black; padding: 15px 30px;
-            text-decoration: none; border-radius: 50px; font-weight: bold;
-            display: flex; align-items: center; gap: 10px; width: 80%; justify-content: center;
+        body { background: #000; color: #fff; font-family: sans-serif; text-align: center; padding: 20px; }
+        .card { background: #1a1a1a; border-radius: 15px; padding: 20px; border: 1px solid #333; margin-bottom: 20px; }
+        .btn-vlc { 
+            background: #ff9800; color: #000; text-decoration: none; 
+            padding: 15px 25px; border-radius: 10px; font-weight: bold; 
+            display: block; margin: 20px auto; width: 80%;
         }
-
-        .channel-list { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 20px; }
-        .channel-item { background: #1a1a1a; padding: 20px; border-radius: 12px; border: 1px solid #333; cursor: pointer; }
-        .channel-item:active { transform: scale(0.95); background: #333; }
+        .channel-btn {
+            background: #333; color: #fff; border: none; padding: 10px;
+            margin: 5px; border-radius: 5px; cursor: pointer; width: 45%;
+        }
+        .active { background: #e50914; }
     </style>
 </head>
 <body>
 
-<div class="header">AWEZA TV</div>
-
-<div class="video-box">
-    <video id="player" controls autoplay playsinline></video>
+<div class="card">
+    <h2 style="color:#e50914;">AWEZA TV</h2>
+    <p id="st">کەناڵێک هەڵبژێرە</p>
+    
+    <a id="vlcAction" href="vlc://http://example.m3u8" class="btn-vlc">کردنەوە بە ئەپی VLC</a>
 </div>
 
-<div class="btn-group">
-    <p id="currentName">کەناڵێک هەڵبژێرە</p>
-    <button onclick="openInVLC()" class="vlc-btn">
-         کردنەوە بە ئەپی VLC 📺
-    </button>
+<div id="list">
+    <button class="channel-btn" onclick="setCh('https://lb.rudaw.net/rudawlive/smil:rudaw.smil/playlist.m3u8', 'Rudaw')">Rudaw</button>
+    <button class="channel-btn" onclick="setCh('https://live.kurdstat.com/hls/stream.m3u8', 'Kurdstat')">Kurdstat</button>
+    <button class="channel-btn" onclick="setCh('https://live.k24.com/hls/stream.m3u8', 'K24')">K24</button>
 </div>
 
-<div class="channel-list" id="list"></div>
-
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <script>
-    let currentUrl = "";
-    const channels = [
-        { name: "Rudaw", url: "https://lb.rudaw.net/rudawlive/smil:rudaw.smil/playlist.m3u8" },
-        { name: "Kurdstat", url: "https://live.kurdstat.com/hls/stream.m3u8" },
-        { name: "K24", url: "https://live.k24.com/hls/stream.m3u8" }
-    ];
-
-    const video = document.getElementById('player');
-    const nameLabel = document.getElementById('currentName');
-
-    function selectChannel(url, name) {
-        currentUrl = url;
-        nameLabel.innerText = "کەناڵی هەڵبژێردراو: " + name;
+    function setCh(url, name) {
+        // گۆڕینی ناوی سەر شاشە
+        document.getElementById('st').innerText = "هەڵبژێردراوە: " + name;
         
-        // یەکەمجار هەوڵ دەدەین لەناو بەرنامەکەدا لێی بدەین
-        if (Hls.isSupported()) {
-            const hls = new Hls();
-            hls.loadSource(url);
-            hls.attachMedia(video);
-        } else {
-            video.src = url;
-        }
-    }
-
-    function openInVLC() {
-        if (!currentUrl) {
-            alert("تکایە سەرەتا کەناڵێک هەڵبژێرە!");
-            return;
-        }
-
-        // ڕێگەی یەکەم: Intent (بۆ ئەندرۆید زۆر بەهێزە)
-        const androidIntent = `intent://${currentUrl.replace(/^https?:\/\//, '')}#Intent;scheme=http;package=org.videolan.vlc;S.title=AwezaTV;end`;
+        // گرنگترین بەش: گۆڕینی لینکی دوگمە زەردەکە بۆ VLC
+        // ئێستا لینکەکە دەبێتە vlc:// پاشان لینکی کەناڵەکە
+        document.getElementById('vlcAction').href = "vlc://" + url;
         
-        // ڕێگەی دووەم: vlc:// (بۆ ئایفۆن و هەندێک مۆبایلی تر)
-        const iosLink = "vlc://" + currentUrl;
-
-        // تاقیکردنەوەی ڕێگەی یەکەم، ئەگەر نەبوو ڕێگەی دووەم
-        try {
-            window.location.href = androidIntent;
-            setTimeout(() => {
-                window.location.href = iosLink;
-            }, 500);
-        } catch (e) {
-            window.location.href = iosLink;
-        }
+        // نیشاندانی ئاگادارکردنەوەیەک بۆ دڵنیایی
+        console.log("لینک گۆڕدرا بۆ: vlc://" + url);
     }
-
-    const listDiv = document.getElementById('list');
-    channels.forEach(ch => {
-        const div = document.createElement('div');
-        div.className = 'channel-item';
-        div.innerText = ch.name;
-        div.onclick = () => selectChannel(ch.url, ch.name);
-        listDiv.appendChild(div);
-    });
 </script>
 
 </body>
