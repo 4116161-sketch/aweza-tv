@@ -3,48 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AWEZA TV Player</title>
+    <title>AWEZA TV PRO</title>
     <style>
-        body { background: #000; color: #fff; font-family: sans-serif; text-align: center; padding: 20px; }
-        .card { background: #1a1a1a; border-radius: 15px; padding: 20px; border: 1px solid #333; margin-bottom: 20px; }
-        .btn-vlc { 
+        body { background: #000; color: #fff; font-family: sans-serif; text-align: center; margin: 0; padding: 20px; }
+        .box { background: #111; padding: 20px; border-radius: 15px; border: 1px solid #e50914; }
+        .btn-play { 
             background: #ff9800; color: #000; text-decoration: none; 
-            padding: 15px 25px; border-radius: 10px; font-weight: bold; 
-            display: block; margin: 20px auto; width: 80%;
+            padding: 15px; border-radius: 10px; font-weight: bold; 
+            display: block; margin: 20px auto; width: 90%; font-size: 18px;
         }
-        .channel-btn {
-            background: #333; color: #fff; border: none; padding: 10px;
-            margin: 5px; border-radius: 5px; cursor: pointer; width: 45%;
-        }
-        .active { background: #e50914; }
+        .ch-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        button { background: #222; color: #fff; border: 1px solid #444; padding: 15px; border-radius: 8px; cursor: pointer; }
+        .active { border-color: #ff9800; background: #333; }
     </style>
 </head>
 <body>
 
-<div class="card">
+<div class="box">
     <h2 style="color:#e50914;">AWEZA TV</h2>
-    <p id="st">کەناڵێک هەڵبژێرە</p>
+    <p id="status">کەناڵێک هەڵبژێرە</p>
     
-    <a id="vlcAction" href="vlc://http://example.m3u8" class="btn-vlc">کردنەوە بە ئەپی VLC</a>
+    <button onclick="playInVLC()" class="btn-play">کلیک بکە بۆ لێدان لە VLC</button>
 </div>
 
-<div id="list">
-    <button class="channel-btn" onclick="setCh('https://lb.rudaw.net/rudawlive/smil:rudaw.smil/playlist.m3u8', 'Rudaw')">Rudaw</button>
-    <button class="channel-btn" onclick="setCh('https://live.kurdstat.com/hls/stream.m3u8', 'Kurdstat')">Kurdstat</button>
-    <button class="channel-btn" onclick="setCh('https://live.k24.com/hls/stream.m3u8', 'K24')">K24</button>
+<br>
+
+<div class="ch-grid">
+    <button onclick="setChannel('https://lb.rudaw.net/rudawlive/smil:rudaw.smil/playlist.m3u8', 'Rudaw')">Rudaw</button>
+    <button onclick="setChannel('https://live.kurdstat.com/hls/stream.m3u8', 'Kurdstat')">Kurdstat</button>
+    <button onclick="setChannel('https://live.k24.com/hls/stream.m3u8', 'K24')">Kurdistan 24</button>
 </div>
 
 <script>
-    function setCh(url, name) {
-        // گۆڕینی ناوی سەر شاشە
-        document.getElementById('st').innerText = "هەڵبژێردراوە: " + name;
+    let selectedUrl = "";
+
+    function setChannel(url, name) {
+        selectedUrl = url;
+        document.getElementById('status').innerText = "هەڵبژێردراوە: " + name;
         
-        // گرنگترین بەش: گۆڕینی لینکی دوگمە زەردەکە بۆ VLC
-        // ئێستا لینکەکە دەبێتە vlc:// پاشان لینکی کەناڵەکە
-        document.getElementById('vlcAction').href = "vlc://" + url;
-        
-        // نیشاندانی ئاگادارکردنەوەیەک بۆ دڵنیایی
-        console.log("لینک گۆڕدرا بۆ: vlc://" + url);
+        // لادانی ستایلی دوگمەکانی تر و دانانی بۆ ئەمەیان
+        document.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+        event.target.classList.add('active');
+    }
+
+    function playInVLC() {
+        if (!selectedUrl) {
+            alert("تکایە سەرەتا کەناڵێک هەڵبژێرە!");
+            return;
+        }
+
+        // ئەمە باشترین ڕێگەیە بۆ ئەندرۆید کە VLC دەکاتەوە
+        // ئەگەر ئایفۆن بێت دەچێتە سەر vlc://
+        const intent = "intent://" + selectedUrl.replace(/^https?:\/\//, '') + "#Intent;scheme=http;package=org.videolan.vlc;end";
+        const vlcProto = "vlc://" + selectedUrl;
+
+        // تاقیکردنەوەی هەردوو ڕێگەکە
+        if (navigator.userAgent.match(/Android/i)) {
+            window.location.href = intent;
+        } else {
+            window.location.href = vlcProto;
+        }
     }
 </script>
 
