@@ -3,84 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AWEZA TV - PRO</title>
+    <title>AWEZA TV - Favorite Edition</title>
     <link href="https://vjs.zencdn.net/7.20.3/video-js.css" rel="stylesheet" />
     <style>
         :root { --main: #e50914; --bg: #0b0b0b; --card: #1a1a1a; }
-        body { background-color: var(--bg); color: white; font-family: sans-serif; margin: 0; padding-bottom: 50px; }
+        
+        body, html { 
+            background-color: var(--bg); color: white; 
+            font-family: sans-serif; margin: 0; padding: 0; 
+            height: 100%; overflow: hidden;
+        }
         
         header { 
-            padding: 10px 20px; background: #000; border-bottom: 2px solid var(--main);
-            display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000;
+            height: 60px; padding: 0 15px; background: #000; 
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 2px solid var(--main);
         }
 
-        .player-box { width: 100%; background: #000; aspect-ratio: 16/9; }
+        .logo-area { display: flex; align-items: center; gap: 10px; }
+        .main-logo { width: 35px; height: 35px; border-radius: 5px; }
+        .logo-text { font-size: 18px; font-weight: bold; color: var(--main); }
+
+        /* بەشی تابت (Tabs) */
+        .tabs {
+            display: flex; background: #111; border-bottom: 1px solid #333;
+        }
+        .tab {
+            flex: 1; padding: 12px; text-align: center; cursor: pointer;
+            font-size: 14px; color: #888; transition: 0.3s;
+        }
+        .tab.active { color: var(--main); border-bottom: 2px solid var(--main); font-weight: bold; }
+
+        .player-container { width: 100%; background: #000; height: 30vh; }
         .video-js { width: 100%; height: 100%; }
 
-        /* دوگمەی + ی سەرەکی */
-        .add-main-btn {
-            background: var(--main); color: white; border: none; width: 45px; height: 45px;
-            border-radius: 50%; font-size: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-        }
-
-        /* مۆداڵ (پەنجەرەی هەڵبژاردن) */
-        .modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); z-index: 2000; justify-content: center; align-items: center;
-        }
-        .modal-content { background: #222; padding: 25px; border-radius: 20px; width: 80%; max-width: 350px; text-align: center; }
-        
-        .opt-btn {
-            display: block; width: 100%; padding: 15px; margin: 10px 0;
-            background: #333; color: white; border-radius: 10px; border: 1px solid #444;
-            cursor: pointer; font-weight: bold; font-size: 16px;
-        }
-        .opt-btn:hover { background: var(--main); }
-
-        .container { padding: 20px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(105px, 1fr)); gap: 12px; }
+        .content-section { height: calc(70vh - 110px); overflow-y: auto; padding: 15px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 12px; }
         
         .card { 
-            background: var(--card); border-radius: 12px; padding: 18px 5px; 
-            text-align: center; cursor: pointer; border: 1px solid #333; font-size: 13px;
-            transition: 0.2s; position: relative;
+            background: var(--card); border-radius: 12px; padding: 10px 5px; 
+            text-align: center; cursor: pointer; border: 1px solid #333; 
+            position: relative; transition: 0.2s;
         }
-        .card:active { transform: scale(0.95); }
         .active-ch { border-color: var(--main); background: #250406; }
 
+        .fav-icon {
+            position: absolute; top: 5px; left: 5px; font-size: 18px;
+            color: #444; transition: 0.3s; z-index: 10;
+        }
+        .fav-icon.is-fav { color: var(--main); }
+
+        .ch-logo { width: 45px; height: 45px; margin-bottom: 5px; object-fit: contain; border-radius: 5px; }
+        .ch-name { font-size: 11px; font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); z-index: 2000; justify-content: center; align-items: center;
+        }
+        .modal-content { background: #1a1a1a; padding: 25px; border-radius: 20px; width: 85%; max-width: 350px; text-align: center; }
+        .opt-btn { display: block; width: 100%; padding: 14px; margin: 10px 0; background: #333; color: white; border-radius: 10px; border: none; cursor: pointer; }
         input[type="file"] { display: none; }
     </style>
 </head>
 <body>
 
 <header>
-    <div style="font-size:22px; font-weight:bold; color:var(--main);">AWEZA TV</div>
-    <button class="add-main-btn" onclick="toggleModal()">+</button>
+    <div class="logo-area">
+        <img src="https://cdn-icons-png.flaticon.com/512/716/716429.png" class="main-logo">
+        <div class="logo-text">AWEZA</div>
+    </div>
+    <button style="background:none; border:none; color:white; font-size:20px;" onclick="toggleModal()">⚙️</button>
 </header>
 
-<div class="player-box">
+<div class="player-container">
     <video id="player" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto"></video>
 </div>
 
-<div class="container">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-        <h3 style="margin:0;">کەناڵەکان</h3>
-        <span id="chCount" style="color:#888; font-size:12px;">0 کەناڵ</span>
-    </div>
+<div class="tabs">
+    <div class="tab active" id="allTab" onclick="switchTab('all')">هەموو کەناڵەکان</div>
+    <div class="tab" id="favTab" onclick="switchTab('fav')">❤️ دڵخوازەکان</div>
+</div>
+
+<div class="content-section">
     <div class="grid" id="list"></div>
 </div>
 
-<div class="modal" id="addModal">
+<div class="modal" id="settingsModal">
     <div class="modal-content">
-        <h3 style="margin-bottom:20px;">زیادکردنی کەناڵ</h3>
-        
-        <button class="opt-btn" onclick="document.getElementById('fileInput').click()">📁 بارکردنی فایل (M3U)</button>
+        <h3>ڕێکخستن</h3>
+        <button class="opt-btn" onclick="document.getElementById('fileInput').click()">📁 بارکردنی M3U</button>
         <button class="opt-btn" onclick="addManual()">✍️ زیادکردنی دەستی</button>
-        <button class="opt-btn" style="background:#666; font-size:13px;" onclick="clearAll()">🗑️ سڕینەوەی هەموو لیستەکە</button>
-        
         <input type="file" id="fileInput" accept=".m3u,.txt" onchange="handleFile(event)">
-        
-        <button onclick="toggleModal()" style="background:none; border:none; color:var(--main); margin-top:15px; cursor:pointer;">داخستن</button>
+        <button class="opt-btn" style="background:#444;" onclick="clearAll()">🗑️ سڕینەوەی گشت</button>
+        <button onclick="toggleModal()" style="background:none; border:none; color:var(--main); margin-top:20px;">داخستن</button>
     </div>
 </div>
 
@@ -88,79 +103,92 @@
 <script>
     const videoPlayer = videojs('player');
     const listContainer = document.getElementById('list');
-    const countLabel = document.getElementById('chCount');
-    let channels = JSON.parse(localStorage.getItem('iptv_data')) || [];
+    let allChannels = JSON.parse(localStorage.getItem('iptv_data')) || [];
+    let favorites = JSON.parse(localStorage.getItem('iptv_favs')) || [];
+    let currentTab = 'all';
 
     function toggleModal() {
-        const modal = document.getElementById('addModal');
+        const modal = document.getElementById('settingsModal');
         modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
+    }
+
+    function switchTab(tab) {
+        currentTab = tab;
+        document.getElementById('allTab').classList.toggle('active', tab === 'all');
+        document.getElementById('favTab').classList.toggle('active', tab === 'fav');
+        render();
     }
 
     function handleFile(event) {
         const file = event.target.files[0];
         if (!file) return;
-
         const reader = new FileReader();
         reader.onload = function(e) {
             const lines = e.target.result.split('\n');
             const newList = [];
-            let currentName = '';
-
+            let currentName = '', currentLogo = '';
             lines.forEach(line => {
                 line = line.trim();
                 if (line.startsWith('#EXTINF:')) {
+                    const logoMatch = line.match(/tvg-logo="([^"]+)"/);
+                    currentLogo = logoMatch ? logoMatch[1] : '';
                     currentName = line.split(',').pop();
                 } else if (line.startsWith('http')) {
-                    newList.push({ name: currentName || 'بێ ناو', url: line });
-                    currentName = '';
+                    newList.push({ id: Math.random().toString(36).substr(2, 9), name: currentName || 'کەناڵ', url: line, logo: currentLogo });
+                    currentName = ''; currentLogo = '';
                 }
             });
-
-            channels = [...channels, ...newList];
-            saveAndRender();
-            toggleModal();
+            allChannels = [...allChannels, ...newList];
+            save(); render(); toggleModal();
         };
         reader.readAsText(file);
     }
 
     function addManual() {
-        const name = prompt("ناوی کەناڵ:");
-        const url = prompt("لینکی کەناڵ:");
-        if (name && url) {
-            channels.push({ name, url });
-            saveAndRender();
-            toggleModal();
+        const name = prompt("ناو:"); const url = prompt("لینک:");
+        if (name && url) { 
+            allChannels.push({ id: Math.random().toString(36).substr(2, 9), name, url, logo: '' }); 
+            save(); render(); toggleModal(); 
         }
+    }
+
+    function toggleFav(id, e) {
+        e.stopPropagation();
+        if (favorites.includes(id)) {
+            favorites = favorites.filter(f => f !== id);
+        } else {
+            favorites.push(id);
+        }
+        localStorage.setItem('iptv_favs', JSON.stringify(favorites));
+        render();
     }
 
     function clearAll() {
-        if (confirm("هەموو لیستەکە دەسڕێتەوە، دڵنیایت؟")) {
-            channels = [];
-            saveAndRender();
-            toggleModal();
-        }
+        if (confirm("سڕینەوەی هەمووی؟")) { allChannels = []; favorites = []; save(); render(); toggleModal(); }
     }
 
-    function saveAndRender() {
-        localStorage.setItem('iptv_data', JSON.stringify(channels));
-        render();
-    }
+    function save() { localStorage.setItem('iptv_data', JSON.stringify(allChannels)); }
 
     function play(url, el) {
         document.querySelectorAll('.card').forEach(c => c.classList.remove('active-ch'));
         el.classList.add('active-ch');
         videoPlayer.src({ src: url, type: 'application/x-mpegURL' });
         videoPlayer.play();
-        window.scrollTo({top: 0, behavior: 'smooth'});
     }
 
     function render() {
         listContainer.innerHTML = '';
-        countLabel.innerText = channels.length + " کەناڵ";
-        channels.forEach((ch) => {
+        const data = currentTab === 'all' ? allChannels : allChannels.filter(ch => favorites.includes(ch.id));
+        
+        data.forEach((ch) => {
+            const isFav = favorites.includes(ch.id);
             const div = document.createElement('div');
             div.className = 'card';
-            div.innerHTML = `<b>${ch.name}</b>`;
+            div.innerHTML = `
+                <div class="fav-icon ${isFav ? 'is-fav' : ''}" onclick="toggleFav('${ch.id}', event)">❤️</div>
+                <img src="${ch.logo || 'https://cdn-icons-png.flaticon.com/512/716/716429.png'}" class="ch-logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/716/716429.png'">
+                <div class="ch-name">${ch.name}</div>
+            `;
             div.onclick = () => play(ch.url, div);
             listContainer.appendChild(div);
         });
