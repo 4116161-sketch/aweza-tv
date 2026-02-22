@@ -1,10 +1,169 @@
 <!DOCTYPE html>
-<html>
-<body style="background:#000; color:#fff; text-align:center; padding-top:100px;">
-    <h2>AWEZA TV</h2>
-    <a href="intent://lb.rudaw.net/rudawlive/smil:rudaw.smil/playlist.m3u8#Intent;scheme=https;type=video/*;package=org.videolan.vlc;S.title=Rudaw;end" 
-       style="padding:20px; background:orange; color:black; text-decoration:none; border-radius:10px; font-weight:bold;">
-       کلیک بکە بۆ لێدان (VLC)
-    </a>
+<html lang="ku" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWEZA TV - وەشانە جێگیرەکە</title>
+    <link href="https://vjs.zencdn.net/7.20.3/video-js.css" rel="stylesheet" />
+    <style>
+        :root {
+            --main-red: #e50914;
+            --dark-bg: #0b0b0b;
+            --card-bg: #1a1a1a;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        header {
+            padding: 15px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+            text-align: center;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--main-red);
+            letter-spacing: 2px;
+        }
+
+        /* ستایلی پلەیەر */
+        .player-section {
+            width: 100%;
+            margin-top: 60px;
+            background: #000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .video-js {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+        }
+
+        /* لیستی کەناڵەکان */
+        .container {
+            padding: 20px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            border-right: 4px solid var(--main-red);
+            padding-right: 10px;
+        }
+
+        .channels-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 12px;
+        }
+
+        .channel-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 15px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid #333;
+        }
+
+        .channel-card:hover, .active-ch {
+            background: var(--main-red);
+            transform: translateY(-5px);
+            border-color: var(--main-red);
+        }
+
+        .channel-card i {
+            display: block;
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .channel-name {
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .footer-note {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">AWEZA TV</div>
+</header>
+
+<div class="player-section">
+    <video id="my-video" class="video-js vjs-big-play-centered" controls preload="auto" poster="https://via.placeholder.com/800x450/000000/ff0000?text=Aweza+TV">
+        <p class="vjs-no-js">بۆ بینینی ئەم ڤیدیۆیە، تکایە JavaScript کارا بکە.</p>
+    </video>
+</div>
+
+<div class="container">
+    <h2 class="section-title">کەناڵەکان</h2>
+    <div class="channels-grid" id="channelList">
+        </div>
+</div>
+
+<div class="footer-note">
+    هەموو مافێک بۆ AWEZA TV پارێزراوە ٢٠٢٤
+</div>
+
+<script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
+<script>
+    const channels = [
+        { name: "ڕووداو", url: "https://lb.rudaw.net/rudawlive/smil:rudaw.smil/playlist.m3u8" },
+        { name: "کوردستان ٢٤", url: "https://live.k24.com/hls/stream.m3u8" },
+        { name: "کوردسات", url: "https://live.kurdstat.com/hls/stream.m3u8" },
+        { name: "NRT", url: "https://nrtlive.b-cdn.net/nrt/index.m3u8" },
+        { name: "وار TV", url: "https://live.waartv.tv/hls/stream.m3u8" }
+    ];
+
+    const player = videojs('my-video');
+    const grid = document.getElementById('channelList');
+
+    function playChannel(url, element) {
+        // گۆڕینی ڕەنگی دوگمەکە
+        document.querySelectorAll('.channel-card').forEach(c => c.classList.remove('active-ch'));
+        element.classList.add('active-ch');
+
+        // بارکردنی ڤیدیۆکە
+        player.src({
+            src: url,
+            type: 'application/x-mpegURL'
+        });
+        player.play();
+
+        // بردنەوەی شاشە بۆ سەرەوە بۆ بینینی ڤیدیۆکە
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // دروستکردنی لیستی کەناڵەکان
+    channels.forEach(ch => {
+        const div = document.createElement('div');
+        div.className = 'channel-card';
+        div.innerHTML = `<div class="channel-name">${ch.name}</div>`;
+        div.onclick = () => playChannel(ch.url, div);
+        grid.appendChild(div);
+    });
+</script>
+
 </body>
 </html>
