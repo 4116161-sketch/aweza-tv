@@ -3,68 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AWEZA TV PRO</title>
+    <title>AWEZA TV</title>
     <style>
-        body { background: #000; color: #fff; font-family: sans-serif; text-align: center; margin: 0; padding: 20px; }
-        .box { background: #111; padding: 20px; border-radius: 15px; border: 1px solid #e50914; }
-        .btn-play { 
-            background: #ff9800; color: #000; text-decoration: none; 
-            padding: 15px; border-radius: 10px; font-weight: bold; 
-            display: block; margin: 20px auto; width: 90%; font-size: 18px;
+        body { background: #000; color: white; font-family: sans-serif; text-align: center; padding: 50px 20px; }
+        .btn { 
+            display: block; width: 100%; max-width: 300px; margin: 20px auto;
+            padding: 20px; background: #e50914; color: white; 
+            text-decoration: none; border-radius: 10px; font-weight: bold;
+            font-size: 20px; box-shadow: 0 4px 15px rgba(229, 9, 20, 0.4);
         }
-        .ch-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        button { background: #222; color: #fff; border: 1px solid #444; padding: 15px; border-radius: 8px; cursor: pointer; }
-        .active { border-color: #ff9800; background: #333; }
+        p { color: #888; font-size: 14px; }
     </style>
 </head>
 <body>
 
-<div class="box">
-    <h2 style="color:#e50914;">AWEZA TV</h2>
-    <p id="status">کەناڵێک هەڵبژێرە</p>
+    <h1 style="color:#e50914;">AWEZA TV</h1>
+    <p>بۆ ئەوەی کەناڵەکە کار بکات، دەبێت ئەپی VLC لە مۆبایلەکەتدا هەبێت.</p>
+
+    <a href="vlc://https://lb.rudaw.net/rudawlive/smil:rudaw.smil/playlist.m3u8" class="btn">📺 بینینی پەخشی ڕووداو</a>
     
-    <button onclick="playInVLC()" class="btn-play">کلیک بکە بۆ لێدان لە VLC</button>
-</div>
+    <a href="vlc://https://live.k24.com/hls/stream.m3u8" class="btn" style="background:#2196F3;">📺 بینینی کوردستان ٢٤</a>
 
-<br>
-
-<div class="ch-grid">
-    <button onclick="setChannel('https://lb.rudaw.net/rudawlive/smil:rudaw.smil/playlist.m3u8', 'Rudaw')">Rudaw</button>
-    <button onclick="setChannel('https://live.kurdstat.com/hls/stream.m3u8', 'Kurdstat')">Kurdstat</button>
-    <button onclick="setChannel('https://live.k24.com/hls/stream.m3u8', 'K24')">Kurdistan 24</button>
-</div>
-
-<script>
-    let selectedUrl = "";
-
-    function setChannel(url, name) {
-        selectedUrl = url;
-        document.getElementById('status').innerText = "هەڵبژێردراوە: " + name;
-        
-        // لادانی ستایلی دوگمەکانی تر و دانانی بۆ ئەمەیان
-        document.querySelectorAll('button').forEach(b => b.classList.remove('active'));
-        event.target.classList.add('active');
-    }
-
-    function playInVLC() {
-        if (!selectedUrl) {
-            alert("تکایە سەرەتا کەناڵێک هەڵبژێرە!");
-            return;
-        }
-
-        // ئەمە باشترین ڕێگەیە بۆ ئەندرۆید کە VLC دەکاتەوە
-        // ئەگەر ئایفۆن بێت دەچێتە سەر vlc://
-        const intent = "intent://" + selectedUrl.replace(/^https?:\/\//, '') + "#Intent;scheme=http;package=org.videolan.vlc;end";
-        const vlcProto = "vlc://" + selectedUrl;
-
-        // تاقیکردنەوەی هەردوو ڕێگەکە
-        if (navigator.userAgent.match(/Android/i)) {
-            window.location.href = intent;
-        } else {
-            window.location.href = vlcProto;
-        }
-    }
-</script>
+    <p style="margin-top:40px;">ئەگەر دوای کلیک کردن هیچی لێ نەهات، دڵنیابە کە ئەپی VLC مۆبایلەکەت نوێیە.</p>
 
 </body>
 </html>
