@@ -3,28 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AWEZA TV</title>
+    <title>AWEZA TV PRO</title>
     <style>
-        body { background: #000; color: white; font-family: sans-serif; text-align: center; padding: 50px 20px; }
+        body { background: #000; color: white; font-family: sans-serif; text-align: center; padding: 40px 20px; }
+        .card { background: #111; padding: 25px; border-radius: 20px; border: 2px solid #e50914; }
         .btn { 
-            display: block; width: 100%; max-width: 300px; margin: 20px auto;
-            padding: 20px; background: #e50914; color: white; 
-            text-decoration: none; border-radius: 10px; font-weight: bold;
-            font-size: 20px; box-shadow: 0 4px 15px rgba(229, 9, 20, 0.4);
+            display: block; width: 100%; padding: 20px; margin: 15px 0;
+            background: #e50914; color: white; text-decoration: none;
+            border-radius: 12px; font-weight: bold; font-size: 18px;
+            border: none; cursor: pointer;
         }
-        p { color: #888; font-size: 14px; }
+        .vlc-icon { font-size: 24px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
-    <h1 style="color:#e50914;">AWEZA TV</h1>
-    <p>بۆ ئەوەی کەناڵەکە کار بکات، دەبێت ئەپی VLC لە مۆبایلەکەتدا هەبێت.</p>
+<div class="card">
+    <div class="vlc-icon">🧡</div>
+    <h2>AWEZA TV</h2>
+    <p>ئەگەر دوای کلیک کردن هیچی لێ نەهات، چەند چرکەیەک چاوەڕێ بکە.</p>
 
-    <a href="vlc://https://lb.rudaw.net/rudawlive/smil:rudaw.smil/playlist.m3u8" class="btn">📺 بینینی پەخشی ڕووداو</a>
-    
-    <a href="vlc://https://live.k24.com/hls/stream.m3u8" class="btn" style="background:#2196F3;">📺 بینینی کوردستان ٢٤</a>
+    <button class="btn" onclick="openVLC('https://lb.rudaw.net/rudawlive/smil:rudaw.smil/playlist.m3u8')">کردنەوەی Rudaw لە VLC</button>
+    <button class="btn" style="background:#0056b3;" onclick="openVLC('https://live.k24.com/hls/stream.m3u8')">کردنەوەی K24 لە VLC</button>
+</div>
 
-    <p style="margin-top:40px;">ئەگەر دوای کلیک کردن هیچی لێ نەهات، دڵنیابە کە ئەپی VLC مۆبایلەکەت نوێیە.</p>
+<script>
+    function openVLC(videoUrl) {
+        // ڕێگەی یەکەم: Intent (بۆ ئەندرۆید)
+        var intentUrl = "intent://" + videoUrl.replace(/^https?:\/\//, '') + "#Intent;scheme=http;package=org.videolan.vlc;S.title=AwezaTV;end";
+        
+        // ڕێگەی دووەم: لینکێکی سادە
+        var simpleUrl = "vlc://" + videoUrl;
+
+        // هەوڵدان بۆ کردنەوەی ئەپەکە
+        window.location.href = intentUrl;
+
+        // ئەگەر دوای ٢ چرکە هیچی نەکرد، ڕێگەی دووەم تاقی دەکاتەوە
+        setTimeout(function() {
+            if (document.hasFocus()) {
+                window.location.href = simpleUrl;
+            }
+        }, 2000);
+    }
+</script>
 
 </body>
 </html>
