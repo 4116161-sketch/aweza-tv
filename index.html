@@ -2,68 +2,86 @@
 <html lang="ku" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AWEZA TV | Dual View</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <title>AWEZA TV PRO</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
         :root { --main: #e50914; --bg: #050505; --card: #121212; --text: #ffffff; }
-        body, html { background-color: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; height: 100vh; overflow: hidden; }
+        
+        /* ڕێگری لە نیشانە و دەستگرتن بە نووسینەکان */
+        * { -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
 
-        header { height: 60px; background: #000; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-bottom: 2px solid var(--main); }
+        body, html { 
+            background-color: var(--bg); color: var(--text); 
+            font-family: 'Segoe UI', Tahoma, sans-serif; 
+            margin: 0; padding: 0; height: 100vh; overflow: hidden;
+            /* بۆ ئەوەی لە مۆبایلە نوێیەکان نەچێتە ژێر کامێرا */
+            padding-top: env(safe-area-inset-top);
+        }
+
+        header { 
+            height: 60px; background: #000; display: flex; justify-content: space-between; 
+            align-items: center; padding: 0 20px; border-bottom: 2px solid var(--main);
+        }
         .logo-text { font-size: 20px; font-weight: 900; color: var(--main); }
 
         .player-wrapper { width: 100%; height: 35vh; background: #000; position: relative; }
-        video { width: 100%; height: 100%; object-fit: contain; }
+        video { width: 100%; height: 100%; object-fit: contain; background: #000; }
 
         .controls-area { background: #0a0a0a; padding: 10px; border-bottom: 1px solid #1a1a1a; }
         .tabs { display: flex; gap: 8px; margin-bottom: 10px; }
-        .tab-btn { flex: 1; padding: 12px; border-radius: 8px; border: 1px solid #333; background: #1a1a1a; color: white; cursor: pointer; font-weight: bold; }
+        .tab-btn { flex: 1; padding: 12px; border-radius: 8px; border: 1px solid #333; background: #1a1a1a; color: white; cursor: pointer; font-weight: bold; font-size: 14px; }
         .tab-btn.active { background: var(--main); border-color: var(--main); }
         
         .search-row { display: flex; gap: 8px; align-items: center; }
-        .search-input { flex-grow: 1; padding: 12px; border-radius: 8px; border: 1px solid #222; background: #111; color: white; outline: none; text-align: right; font-size: 16px; }
-        .view-btn { padding: 10px; background: #222; border: 1px solid #333; border-radius: 8px; color: white; cursor: pointer; font-size: 20px; width: 50px; }
+        .search-input { flex-grow: 1; padding: 12px; border-radius: 8px; border: 1px solid #222; background: #111; color: white; outline: none; text-align: right; font-size: 16px; border: 1px solid #333; }
+        .view-btn { padding: 10px; background: #222; border: 1px solid #333; border-radius: 8px; color: white; cursor: pointer; font-size: 20px; width: 50px; display: flex; justify-content: center; }
 
-        /* Grid & List Styles */
         .channel-grid { height: calc(65vh - 130px); overflow-y: auto; padding: 10px; -webkit-overflow-scrolling: touch; touch-action: pan-y; }
         
-        /* ستایلی چوارگۆشە (Grid) */
-        .grid-mode { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px; }
+        /* Grid Mode */
+        .grid-mode { display: grid; grid-template-columns: repeat(auto-fill, minmax(105px, 1fr)); gap: 12px; }
         .grid-mode .card { flex-direction: column; text-align: center; padding: 10px; }
         .grid-mode .card img { width: 50px; height: 50px; margin: 0 auto 8px; }
         .grid-mode .card-info span { font-size: 11px; }
         .grid-mode .delete-btn { position: absolute; top: 5px; right: 5px; font-size: 14px; }
         .grid-mode .fav-star { position: absolute; top: 5px; left: 5px; font-size: 18px; }
 
-        /* ستایلی ستوونی (List) */
+        /* List Mode */
         .list-mode { display: flex; flex-direction: column; gap: 10px; }
         .list-mode .card { display: flex; align-items: center; padding: 12px 15px; text-align: right; }
         .list-mode .card img { width: 60px; height: 60px; margin-left: 15px; }
         .list-mode .card-info span { font-size: 16px; }
 
-        .card { background: var(--card); border-radius: 10px; cursor: pointer; border: 1px solid #222; position: relative; transition: 0.2s; }
-        .card:active { background: #1a1a1a; transform: scale(0.98); }
-        .card img { object-fit: contain; border-radius: 8px; background: #000; }
-        .card-info { flex-grow: 1; overflow: hidden; }
+        .card { background: var(--card); border-radius: 10px; cursor: pointer; border: 1px solid #222; position: relative; transition: 0.1s; }
+        .card:active { background: #222; transform: scale(0.97); }
+        .card img { object-fit: contain; border-radius: 8px; background: #000; pointer-events: none; }
+        .card-info { flex-grow: 1; overflow: hidden; pointer-events: none; }
         .card-info span { font-weight: bold; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
         .actions { display: flex; align-items: center; gap: 15px; }
-        .fav-star { color: #444; cursor: pointer; }
+        .fav-star { color: #444; cursor: pointer; padding: 5px; }
         .fav-star.active { color: #ffb400; }
-        .delete-btn { color: #555; cursor: pointer; }
+        .delete-btn { color: #555; cursor: pointer; padding: 5px; }
 
         /* Modal */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; justify-content: center; align-items: center; }
-        .modal-content { background: #111; padding: 25px; border-radius: 15px; width: 85%; max-width: 380px; border: 1px solid var(--main); }
-        .xtream-form input { width: 100%; padding: 12px; margin-bottom: 12px; border-radius: 8px; border: 1px solid #333; background: #000; color: white; box-sizing: border-box; }
-        .btn-action { width: 100%; padding: 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; margin-top: 8px; }
+        .modal-content { background: #111; padding: 25px; border-radius: 15px; width: 85%; max-width: 380px; border: 1px solid var(--main); box-shadow: 0 0 30px rgba(229, 9, 20, 0.2); }
+        .xtream-form input { width: 100%; padding: 12px; margin-bottom: 12px; border-radius: 8px; border: 1px solid #333; background: #000; color: white; box-sizing: border-box; outline: none; }
+        .btn-action { width: 100%; padding: 14px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; margin-top: 8px; font-size: 14px; }
+
+        ::-webkit-scrollbar { width: 0px; background: transparent; }
     </style>
 </head>
 <body>
 
 <header>
     <div class="logo-text">AWEZA TV</div>
-    <button onclick="openModal()" style="background:none; border:none; color:white; font-size:24px; cursor:pointer;">⚙️</button>
+    <button onclick="openModal()" style="background:none; border:none; color:white; font-size:24px; cursor:pointer; padding: 5px;">⚙️</button>
 </header>
 
 <div class="player-wrapper">
@@ -76,7 +94,7 @@
         <button id="tab-fav" class="tab-btn" onclick="setMode('fav')">⭐ دڵخوازەکان</button>
     </div>
     <div class="search-row">
-        <input type="text" id="search" class="search-input" placeholder="بۆ کەناڵ بگەڕێ..." onkeyup="render()">
+        <input type="text" id="search" class="search-input" placeholder="گەڕان بۆ ناوی کەناڵ..." onkeyup="render()">
         <button id="viewToggle" class="view-btn" onclick="toggleView()">🔲</button>
     </div>
 </div>
@@ -85,18 +103,18 @@
 
 <div id="settingsModal" class="modal">
     <div class="modal-content">
-        <h3 style="color:var(--main); margin-top:0; text-align:center;">ڕێکخستن</h3>
+        <h3 style="color:var(--main); margin-top:0; text-align:center;">ڕێکخستنی ئەپ</h3>
         <div class="xtream-form">
-            <input type="text" id="xt_host" placeholder="Server URL">
+            <input type="text" id="xt_host" placeholder="Host (http://url:80)">
             <input type="text" id="xt_user" placeholder="Username">
             <input type="text" id="xt_pass" placeholder="Password">
             <button class="btn-action" style="background:var(--main); color:white" onclick="loginXtream()">بەستنەوەی Xtream</button>
         </div>
-        <hr style="border:0.5px solid #222; margin:15px 0;">
+        <hr style="border:0.1px solid #222; margin:20px 0;">
         <button class="btn-action" style="background:#333; color:white" onclick="document.getElementById('fileInput').click()">📁 بارکردنی M3U</button>
         <input type="file" id="fileInput" style="display:none" onchange="fromFile(event)">
-        <button class="btn-action" style="background:#550000; color:#ff9999; border:1px solid #770000; margin-top:20px;" onclick="clearAllData()">🗑️ سڕینەوەی هەموو لیستەکە</button>
-        <button class="btn-action" style="background:#444; color:white; margin-top:10px;" onclick="closeModal()">داخستن</button>
+        <button class="btn-action" style="background:#550000; color:#ff9999; margin-top:20px;" onclick="clearAllData()">🗑️ سڕینەوەی هەموو لیستەکە</button>
+        <button class="btn-action" style="background:#444; color:white; margin-top:15px;" onclick="closeModal()">داخستن</button>
     </div>
 </div>
 
@@ -106,7 +124,7 @@
     let channels = JSON.parse(localStorage.getItem('az_data')) || [];
     let favorites = JSON.parse(localStorage.getItem('az_favs')) || [];
     let currentMode = 'all';
-    let viewStyle = localStorage.getItem('az_view') || 'list'; // 'list' or 'grid'
+    let viewStyle = localStorage.getItem('az_view') || 'list';
 
     function openModal() { document.getElementById('settingsModal').style.display = 'flex'; }
     function closeModal() { document.getElementById('settingsModal').style.display = 'none'; }
@@ -114,13 +132,12 @@
     function toggleView() {
         viewStyle = (viewStyle === 'list') ? 'grid' : 'list';
         localStorage.setItem('az_view', viewStyle);
-        document.getElementById('viewToggle').innerText = (viewStyle === 'list') ? '🔲' : '☰';
         render();
     }
 
     function clearAllData() {
-        if(confirm("دڵنیای هەموو کەناڵەکان بسڕدرێنەوە؟")) {
-            localStorage.removeItem('az_data'); localStorage.removeItem('az_favs');
+        if(confirm("ئایا دڵنیای لە سڕینەوەی هەموو داتاکان؟")) {
+            localStorage.clear();
             channels = []; favorites = []; render(); closeModal();
         }
     }
@@ -138,7 +155,7 @@
         const host = document.getElementById('xt_host').value.trim();
         const user = document.getElementById('xt_user').value.trim();
         const pass = document.getElementById('xt_pass').value.trim();
-        if(!host || !user || !pass) return alert("خانەکان پڕ بکەرەوە");
+        if(!host || !user || !pass) return alert("تکایە خانەکان پڕ بکەرەوە");
         const apiUrl = `${host}/player_api.php?username=${user}&password=${pass}&action=get_live_streams`;
         try {
             const res = await fetch(apiUrl);
@@ -148,7 +165,7 @@
                 localStorage.setItem('az_data', JSON.stringify(channels));
                 render(); closeModal();
             }
-        } catch (e) { alert("کێشەیەک هەیە"); }
+        } catch (e) { alert("هەڵە لە بەستنەوە ڕوویدا"); }
     }
 
     function fromFile(e) {
@@ -196,7 +213,7 @@
         if (currentMode === 'fav') list = list.filter(c => favorites.includes(c.n));
 
         if(list.length === 0) {
-            grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#555; margin-top:50px;">بەتاڵە</div>';
+            grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#444; margin-top:50px;">هیچ کەناڵێک نییە</div>';
             return;
         }
 
