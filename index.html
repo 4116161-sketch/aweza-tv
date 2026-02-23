@@ -3,28 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AWEZA TV | Settings Mode</title>
+    <title>AWEZA TV | Premium</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
-        :root { --main: #e50914; --bg: #0b0b0b; --card: #1a1a1a; }
-        body, html { background-color: var(--bg); color: white; font-family: sans-serif; margin: 0; padding: 0; height: 100vh; overflow: hidden; }
-        header { height: 65px; background: #000; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-bottom: 2px solid var(--main); position: relative; z-index: 100; }
-        .logo { font-size: 24px; font-weight: bold; color: var(--main); }
-        .settings-btn { background: #222; color: white; border: 1px solid #444; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        .settings-btn:hover { background: var(--main); }
-        .player-container { width: 100%; height: 45vh; background: #000; display: flex; justify-content: center; border-bottom: 1px solid #222; }
-        video { width: 100%; height: 100%; background: #000; }
-        .content { height: calc(55vh - 65px); overflow-y: auto; padding: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 15px; }
-        .card { background: var(--card); border-radius: 10px; padding: 15px; text-align: center; cursor: pointer; border: 1px solid #333; transition: 0.3s; }
-        .card:hover { border-color: var(--main); transform: scale(1.05); }
-        .card img { width: 50px; height: 50px; object-fit: contain; margin-bottom: 8px; border-radius: 5px; }
-        .card span { font-size: 12px; font-weight: bold; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-content { background: #1a1a1a; padding: 25px; border-radius: 15px; width: 90%; max-width: 500px; border: 1px solid #444; text-align: center; }
-        textarea { width: 100%; height: 120px; background: #000; color: #0f0; border: 1px solid #333; border-radius: 8px; padding: 10px; margin: 15px 0; box-sizing: border-box; resize: none; }
-        .modal-btn { background: var(--main); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; margin-bottom: 10px; }
-        .close-btn { background: #333; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer; width: 100%; }
-        ::-webkit-scrollbar { width: 8px; }
+        :root { --main: #e50914; --bg: #050505; --card: #141414; --accent: #222; }
+        body, html { background-color: var(--bg); color: white; font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; padding: 0; height: 100vh; overflow: hidden; }
+        
+        /* Header */
+        header { 
+            height: 70px; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px);
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 0 30px; border-bottom: 2px solid var(--main); position: sticky; top: 0; z-index: 1000;
+        }
+        .logo { font-size: 26px; font-weight: 900; color: var(--main); text-transform: uppercase; letter-spacing: 2px; }
+        
+        .nav-btns { display: flex; gap: 10px; }
+        .btn { background: var(--accent); color: white; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .btn-main { background: var(--main); }
+        .btn:hover { transform: scale(1.05); opacity: 0.9; }
+
+        /* Video Area */
+        .player-container { width: 100%; height: 45vh; background: #000; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        video { width: 100%; height: 100%; object-fit: contain; }
+
+        /* Search Bar */
+        .search-area { padding: 15px 30px; background: #0a0a0a; border-bottom: 1px solid #1a1a1a; }
+        .search-input { width: 100%; padding: 12px 20px; border-radius: 25px; border: 1px solid #333; background: #111; color: white; font-size: 14px; outline: none; transition: 0.3s; }
+        .search-input:focus { border-color: var(--main); background: #181818; }
+
+        /* Channel List */
+        .content { 
+            height: calc(55vh - 130px); overflow-y: auto; padding: 25px; 
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 20px;
+        }
+        
+        .card { 
+            background: var(--card); border-radius: 12px; padding: 20px; 
+            text-align: center; cursor: pointer; border: 1px solid #222; 
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .card:hover { border-color: var(--main); transform: translateY(-8px); background: #1f1f1f; box-shadow: 0 10px 20px rgba(0,0,0,0.4); }
+        .card img { width: 65px; height: 65px; object-fit: contain; margin-bottom: 12px; border-radius: 8px; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.3)); }
+        .card span { font-size: 13px; font-weight: 600; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+        /* Modal Settings */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; justify-content: center; align-items: center; }
+        .modal-content { background: #111; padding: 30px; border-radius: 20px; width: 90%; max-width: 480px; border: 1px solid var(--main); }
+        textarea { width: 100%; height: 150px; background: #000; color: #0f0; border: 1px solid #333; border-radius: 10px; padding: 15px; margin: 15px 0; box-sizing: border-box; font-family: monospace; }
+        
+        ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: var(--main); border-radius: 10px; }
     </style>
 </head>
@@ -32,26 +59,30 @@
 
 <header>
     <div class="logo">AWEZA TV</div>
-    <button class="settings-btn" onclick="toggleModal()">⚙️ ڕێکخستن</button>
+    <div class="nav-btns">
+        <button class="btn" onclick="clearAll()">سڕینەوە</button>
+        <button class="btn btn-main" onclick="openSettings()">⚙️ لیست</button>
+    </div>
 </header>
 
 <div class="player-container">
-    <video id="videoPlayer" controls></video>
+    <video id="videoPlayer" controls poster="https://via.placeholder.com/800x450/000000/FFFFFF?text=AWEZA+TV"></video>
 </div>
 
-<div class="content" id="list">
-    <div style="grid-column: 1/-1; text-align: center; color: #555; margin-top: 50px;">بۆ بارکردنی کەناڵەکان کلیک لە دوگمەی ⚙️ ڕێکخستن بکە.</div>
+<div class="search-area">
+    <input type="text" id="search" class="search-input" placeholder="بۆ کەناڵەکە بگەڕێ..." onkeyup="renderChannels()">
 </div>
+
+<div class="content" id="list"></div>
 
 <div id="settingsModal" class="modal">
     <div class="modal-content">
-        <h3 style="margin-top:0; color:var(--main)">بارکردنی کەناڵەکان</h3>
-        <button class="modal-btn" onclick="document.getElementById('fileIn').click()">📁 هەڵبژاردنی فایلی M3U</button>
+        <h2 style="color:var(--main); margin:0 0 10px 0;">ڕێکخستنی لیست</h2>
+        <button class="btn btn-main" style="width:100%" onclick="document.getElementById('fileIn').click()">📁 بارکردنی فایل</button>
         <input type="file" id="fileIn" accept=".m3u,.txt" style="display:none" onchange="handleFile(event)">
-        <p style="font-size: 12px; color: #888;">یان دەقەکە لێرە پەیس بکە:</p>
         <textarea id="m3uText" placeholder="#EXTM3U..."></textarea>
-        <button class="modal-btn" onclick="processText()">✅ جێگیرکردن</button>
-        <button class="close-btn" onclick="toggleModal()">داخستن</button>
+        <button class="btn btn-main" style="width:100%; background:#28a745" onclick="processText()">✅ جێگیرکردن</button>
+        <button class="btn" style="width:100%; margin-top:10px;" onclick="closeSettings()">پەشیمانبوونەوە</button>
     </div>
 </div>
 
@@ -59,42 +90,61 @@
     const video = document.getElementById('videoPlayer');
     const hls = new Hls();
     const listContainer = document.getElementById('list');
-    const modal = document.getElementById('settingsModal');
+    let channels = JSON.parse(localStorage.getItem('my_channels')) || [];
 
-    function toggleModal() { modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex'; }
-    function processText() { parseAndRender(document.getElementById('m3uText').value); toggleModal(); }
+    function openSettings() { document.getElementById('settingsModal').style.display = 'flex'; }
+    function closeSettings() { document.getElementById('settingsModal').style.display = 'none'; }
+    function clearAll() { if(confirm("دڵنیای هەموو کەناڵەکان بسڕیتەوە؟")) { localStorage.clear(); location.reload(); } }
+
     function handleFile(e) {
         const file = e.target.files[0];
-        if (!file) return;
         const reader = new FileReader();
-        reader.onload = (ev) => { parseAndRender(ev.target.result); toggleModal(); };
+        reader.onload = (ev) => { parseData(ev.target.result); };
         reader.readAsText(file);
     }
-    function parseAndRender(data) {
-        listContainer.innerHTML = '';
-        if (!data.includes('http')) return;
+
+    function processText() { parseData(document.getElementById('m3uText').value); }
+
+    function parseData(data) {
         const lines = data.split('\n');
+        let parsed = [];
         let name = '', logo = '';
-        lines.forEach((line) => {
+        lines.forEach(line => {
             line = line.trim();
             if (line.startsWith('#EXTINF:')) {
                 const logoMatch = line.match(/tvg-logo="([^"]+)"/);
                 logo = logoMatch ? logoMatch[1] : '';
                 name = line.split(',').pop() || 'Channel';
             } else if (line.startsWith('http')) {
-                const url = line, n = name || "Channel", l = logo || 'https://cdn-icons-png.flaticon.com/512/716/716429.png';
-                const div = document.createElement('div');
-                div.className = 'card';
-                div.innerHTML = `<img src="${l}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/716/716429.png'"><span>${n}</span>`;
-                div.onclick = () => {
-                    if (Hls.isSupported()) { hls.loadSource(url); hls.attachMedia(video); hls.on(Hls.Events.MANIFEST_PARSED, () => video.play()); }
-                    else if (video.canPlayType('application/vnd.apple.mpegurl')) { video.src = url; video.play(); }
-                };
-                listContainer.appendChild(div);
+                parsed.push({ n: name, u: line, l: logo });
                 name = ''; logo = '';
             }
         });
+        channels = parsed;
+        localStorage.setItem('my_channels', JSON.stringify(channels));
+        renderChannels();
+        closeSettings();
     }
+
+    function renderChannels() {
+        const query = document.getElementById('search').value.toLowerCase();
+        listContainer.innerHTML = '';
+        const filtered = channels.filter(c => c.n.toLowerCase().includes(query));
+        
+        filtered.forEach(ch => {
+            const div = document.createElement('div');
+            div.className = 'card';
+            div.innerHTML = `<img src="${ch.l || 'https://cdn-icons-png.flaticon.com/512/716/716429.png'}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/716/716429.png'"><span>${ch.n}</span>`;
+            div.onclick = () => {
+                if (Hls.isSupported()) { hls.loadSource(ch.u); hls.attachMedia(video); hls.on(Hls.Events.MANIFEST_PARSED, () => video.play()); }
+                else { video.src = ch.u; video.play(); }
+                window.scrollTo({top: 0, behavior: 'smooth'});
+            };
+            listContainer.appendChild(div);
+        });
+    }
+
+    if(channels.length > 0) renderChannels();
 </script>
 </body>
 </html>
