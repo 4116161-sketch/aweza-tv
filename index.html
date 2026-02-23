@@ -2,64 +2,116 @@
 <html lang="ku" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>AWEZA TV - Fixed Player</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWEZA TV | Modern</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
-        body { background: #000; color: white; font-family: sans-serif; margin: 0; padding: 10px; text-align: center; }
-        textarea { width: 90%; height: 80px; background: #111; color: #0f0; border: 1px solid #e50914; padding: 10px; margin: 10px 0; border-radius: 8px; }
-        video { width: 100%; max-width: 800px; height: 300px; background: #000; border: 2px solid #333; display: none; margin: 0 auto 20px; }
-        #list { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; padding: 10px; }
-        .card { background: #1a1a1a; padding: 15px; border-radius: 8px; cursor: pointer; border: 1px solid #333; font-size: 13px; }
-        .card:hover { border-color: #e50914; background: #222; }
-        h2 { color: #e50914; margin: 5px 0; }
+        :root { --main: #e50914; --bg: #0b0b0b; --card: #1a1a1a; }
+        body, html { background-color: var(--bg); color: white; font-family: sans-serif; margin: 0; padding: 0; height: 100vh; overflow: hidden; }
+        
+        header { 
+            height: 65px; background: #000; display: flex; justify-content: space-between; 
+            align-items: center; padding: 0 20px; border-bottom: 2px solid var(--main);
+            position: relative; z-index: 100;
+        }
+        .logo { font-size: 24px; font-weight: bold; color: var(--main); }
+
+        /* بەشی ڤیدیۆ */
+        .player-container { width: 100%; height: 40vh; background: #000; display: flex; justify-content: center; }
+        video { width: 100%; height: 100%; background: #000; outline: none; }
+
+        /* بەشی گەڕان و داخڵکردن */
+        .input-section { padding: 10px 20px; background: #111; display: flex; gap: 10px; }
+        input, textarea { 
+            flex: 1; padding: 12px; border-radius: 8px; border: 1px solid #333; 
+            background: #1a1a1a; color: white; text-align: right; outline: none;
+        }
+        input:focus { border-color: var(--main); }
+
+        /* لیستی کەناڵەکان */
+        .content { 
+            height: calc(60vh - 120px); overflow-y: auto; padding: 20px; 
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 15px;
+        }
+        
+        .card { 
+            background: var(--card); border-radius: 10px; padding: 15px; 
+            text-align: center; cursor: pointer; border: 1px solid #333; transition: 0.3s;
+        }
+        .card:hover { border-color: var(--main); transform: scale(1.05); }
+        .card img { width: 50px; height: 50px; object-fit: contain; margin-bottom: 8px; }
+        .card span { font-size: 12px; font-weight: bold; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-thumb { background: var(--main); border-radius: 10px; }
     </style>
 </head>
 <body>
 
-<h2>AWEZA TV</h2>
-<textarea id="box" oninput="process()" placeholder="کۆدی فایلی M3U لێرە پەیس بکە..."></textarea>
-<video id="video" controls></video>
-<div id="list"></div>
+<header>
+    <div class="logo">AWEZA TV</div>
+    <div style="font-size: 12px; color: #666;">دیزاینی پێشکەوتوو</div>
+</header>
+
+<div class="player-container">
+    <video id="videoPlayer" controls></video>
+</div>
+
+<div class="input-section">
+    <textarea id="m3uInput" placeholder="دەقی M3U لێرە پەیس بکە و خۆی کەناڵەکان دروست دەکات..." oninput="processM3U()"></textarea>
+</div>
+
+<div class="content" id="list">
+    </div>
 
 <script>
-    const video = document.getElementById('video');
+    const video = document.getElementById('videoPlayer');
     const hls = new Hls();
+    const listContainer = document.getElementById('list');
 
-    function process() {
-        const val = document.getElementById('box').value;
-        const list = document.getElementById('list');
-        list.innerHTML = '';
+    function processM3U() {
+        const rawData = document.getElementById('m3uInput').value;
+        listContainer.innerHTML = '';
+        
+        if (!rawData.includes('http')) return;
 
-        if (val.includes('http')) {
-            const lines = val.split('\n');
-            lines.forEach((line, i) => {
-                if (line.trim().startsWith('http')) {
-                    let name = "کەناڵی " + (i + 1);
-                    if (i > 0 && lines[i-1].includes('#EXTINF')) {
-                        name = lines[i-1].split(',').pop();
+        const lines = rawData.split('\n');
+        let name = '', logo = '';
+
+        lines.forEach((line, i) => {
+            line = line.trim();
+            if (line.startsWith('#EXTINF:')) {
+                const logoMatch = line.match(/tvg-logo="([^"]+)"/);
+                logo = logoMatch ? logoMatch[1] : '';
+                name = line.split(',').pop() || 'Channel';
+            } else if (line.startsWith('http')) {
+                const currentName = name || "کەناڵی " + (i + 1);
+                const currentLogo = logo || 'https://cdn-icons-png.flaticon.com/512/716/716429.png';
+                const currentUrl = line;
+
+                const div = document.createElement('div');
+                div.className = 'card';
+                div.innerHTML = `
+                    <img src="${currentLogo}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/716/716429.png'">
+                    <span>${currentName}</span>
+                `;
+                
+                div.onclick = () => {
+                    if (Hls.isSupported()) {
+                        hls.loadSource(currentUrl);
+                        hls.attachMedia(video);
+                        hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
+                    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                        video.src = currentUrl;
+                        video.play();
                     }
-
-                    const div = document.createElement('div');
-                    div.className = 'card';
-                    div.innerText = name;
-                    div.onclick = () => {
-                        const url = line.trim();
-                        video.style.display = 'block';
-                        
-                        if (Hls.isSupported()) {
-                            hls.loadSource(url);
-                            hls.attachMedia(video);
-                            hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
-                        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                            video.src = url;
-                            video.play();
-                        }
-                        window.scrollTo(0, 0);
-                    };
-                    list.appendChild(div);
-                }
-            });
-        }
+                    window.scrollTo({top: 0, behavior: 'smooth'});
+                };
+                
+                listContainer.appendChild(div);
+                name = ''; logo = ''; // Reset for next channel
+            }
+        });
     }
 </script>
 </body>
