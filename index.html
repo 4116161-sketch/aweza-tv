@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AWEZA TV PRO</title>
+    <title>AWEZA TV | List View</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
         :root { --main: #e50914; --bg: #050505; --card: #121212; --text: #ffffff; }
@@ -12,7 +12,7 @@
         header { height: 60px; background: #000; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-bottom: 2px solid var(--main); }
         .logo-text { font-size: 20px; font-weight: 900; color: var(--main); }
 
-        .player-wrapper { width: 100%; height: 40vh; background: #000; position: relative; }
+        .player-wrapper { width: 100%; height: 35vh; background: #000; position: relative; }
         video { width: 100%; height: 100%; object-fit: contain; }
 
         .controls-area { background: #0a0a0a; padding: 10px; border-bottom: 1px solid #1a1a1a; }
@@ -21,18 +21,54 @@
         .tab-btn.active { background: var(--main); border-color: var(--main); }
         .search-input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #222; background: #111; color: white; outline: none; box-sizing: border-box; text-align: right; font-size: 16px; }
 
-        .channel-grid { height: calc(60vh - 120px); overflow-y: auto; padding: 15px; display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 15px; -webkit-overflow-scrolling: touch; touch-action: pan-y; }
-        .card { background: var(--card); border-radius: 12px; padding: 12px; text-align: center; cursor: pointer; border: 1px solid #222; position: relative; }
-        .card img { width: 50px; height: 50px; object-fit: contain; margin-bottom: 8px; border-radius: 6px; }
-        .card span { font-size: 11px; font-weight: 600; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .fav-star { position: absolute; top: 5px; left: 5px; color: #444; font-size: 20px; }
+        /* Channel List Style - دیزاینی ستوونی */
+        .channel-grid { 
+            height: calc(65vh - 120px); 
+            overflow-y: auto; 
+            padding: 10px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 10px; 
+            -webkit-overflow-scrolling: touch; 
+            touch-action: pan-y; 
+        }
+
+        .card { 
+            background: var(--card); 
+            border-radius: 10px; 
+            padding: 12px 15px; 
+            display: flex; 
+            align-items: center; 
+            cursor: pointer; 
+            border: 1px solid #222; 
+            position: relative; 
+            transition: 0.2s;
+        }
+        .card:active { background: #1a1a1a; transform: scale(0.98); }
+        
+        .card img { 
+            width: 60px; 
+            height: 60px; 
+            object-fit: contain; 
+            margin-left: 15px; 
+            border-radius: 8px; 
+            background: #000;
+        }
+        
+        .card-info { flex-grow: 1; overflow: hidden; }
+        .card-info span { font-size: 16px; font-weight: bold; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .actions { display: flex; align-items: center; gap: 15px; }
+        .fav-star { font-size: 24px; color: #444; cursor: pointer; }
         .fav-star.active { color: #ffb400; }
+        .delete-btn { color: #555; font-size: 18px; cursor: pointer; padding: 5px; }
+        .delete-btn:hover { color: var(--main); }
 
         /* Modal Settings */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; justify-content: center; align-items: center; }
         .modal-content { background: #111; padding: 25px; border-radius: 15px; width: 85%; max-width: 380px; border: 1px solid var(--main); }
         .xtream-form input { width: 100%; padding: 12px; margin-bottom: 12px; border-radius: 8px; border: 1px solid #333; background: #000; color: white; box-sizing: border-box; text-align: left; }
-        .btn-action { width: 100%; padding: 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; margin-top: 8px; display: block; font-size: 14px; }
+        .btn-action { width: 100%; padding: 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; margin-top: 8px; display: block; }
     </style>
 </head>
 <body>
@@ -51,7 +87,7 @@
         <button id="tab-all" class="tab-btn active" onclick="setMode('all')">📺 کەناڵەکان</button>
         <button id="tab-fav" class="tab-btn" onclick="setMode('fav')">⭐ دڵخوازەکان</button>
     </div>
-    <input type="text" id="search" class="search-input" placeholder="گەڕان بۆ ناوی کەناڵ..." onkeyup="render()">
+    <input type="text" id="search" class="search-input" placeholder="بۆ کەناڵ بگەڕێ..." onkeyup="render()">
 </div>
 
 <div class="channel-grid" id="grid"></div>
@@ -68,9 +104,7 @@
         <hr style="border:0.5px solid #222; margin:15px 0;">
         <button class="btn-action" style="background:#333; color:white" onclick="document.getElementById('fileInput').click()">📁 بارکردنی M3U</button>
         <input type="file" id="fileInput" style="display:none" onchange="fromFile(event)">
-        
-        <button class="btn-action" style="background:#550000; color:#ff9999; border:1px solid #770000; margin-top:20px;" onclick="clearAllData()">🗑️ سڕینەوەی هەموو کەناڵەکان</button>
-        
+        <button class="btn-action" style="background:#550000; color:#ff9999; border:1px solid #770000; margin-top:20px;" onclick="clearAllData()">🗑️ سڕینەوەی هەموو لیستەکە</button>
         <button class="btn-action" style="background:#444; color:white; margin-top:10px;" onclick="closeModal()">داخستن</button>
     </div>
 </div>
@@ -85,16 +119,21 @@
     function openModal() { document.getElementById('settingsModal').style.display = 'flex'; }
     function closeModal() { document.getElementById('settingsModal').style.display = 'none'; }
 
-    // سڕینەوەی هەموو داتاکان
     function clearAllData() {
-        if(confirm("ئایا دڵنیای هەموو کەناڵەکان و دڵخوازەکان بسڕدرێنەوە؟")) {
+        if(confirm("دڵنیای هەموو کەناڵەکان بسڕدرێنەوە؟")) {
             localStorage.removeItem('az_data');
             localStorage.removeItem('az_favs');
-            channels = [];
-            favorites = [];
+            channels = []; favorites = []; render(); closeModal();
+        }
+    }
+
+    // سڕینەوەی تەنها یەک کەناڵ
+    function deleteChannel(url, event) {
+        event.stopPropagation();
+        if(confirm("ئەم کەناڵە بسڕدرێتەوە؟")) {
+            channels = channels.filter(c => c.u !== url);
+            localStorage.setItem('az_data', JSON.stringify(channels));
             render();
-            closeModal();
-            alert("هەموو شتێک سڕدراوەوە.");
         }
     }
 
@@ -103,7 +142,6 @@
         const user = document.getElementById('xt_user').value.trim();
         const pass = document.getElementById('xt_pass').value.trim();
         if(!host || !user || !pass) return alert("خانەکان پڕ بکەرەوە");
-        
         const apiUrl = `${host}/player_api.php?username=${user}&password=${pass}&action=get_live_streams`;
         try {
             const res = await fetch(apiUrl);
@@ -113,7 +151,7 @@
                 localStorage.setItem('az_data', JSON.stringify(channels));
                 render(); closeModal();
             }
-        } catch (e) { alert("کێشەیەک هەیە لە زانیارییەکان"); }
+        } catch (e) { alert("کێشەیەک هەیە"); }
     }
 
     function fromFile(e) {
@@ -158,7 +196,7 @@
         if (currentMode === 'fav') list = list.filter(c => favorites.includes(c.n));
 
         if(list.length === 0) {
-            grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#555; margin-top:50px;">لیستەکە بەتاڵە</div>';
+            grid.innerHTML = '<div style="text-align:center; color:#555; margin-top:50px;">لیستەکە بەتاڵە</div>';
             return;
         }
 
@@ -166,9 +204,15 @@
             const isFav = favorites.includes(c.n);
             const d = document.createElement('div');
             d.className = 'card';
-            d.innerHTML = `<div class="fav-star ${isFav ? 'active' : ''}" onclick="toggleStar('${c.n}', event)">★</div>
-                           <img src="${c.l || 'https://cdn-icons-png.flaticon.com/512/716/716429.png'}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/716/716429.png'">
-                           <span>${c.n}</span>`;
+            d.innerHTML = `
+                <img src="${c.l || 'https://cdn-icons-png.flaticon.com/512/716/716429.png'}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/716/716429.png'">
+                <div class="card-info">
+                    <span>${c.n}</span>
+                </div>
+                <div class="actions">
+                    <div class="fav-star ${isFav ? 'active' : ''}" onclick="toggleStar('${c.n}', event)">★</div>
+                    <div class="delete-btn" onclick="deleteChannel('${c.u}', event)">🗑️</div>
+                </div>`;
             d.onclick = () => {
                 if (Hls.isSupported()) { hls.loadSource(c.u); hls.attachMedia(video); hls.on(Hls.Events.MANIFEST_PARSED, () => video.play()); }
                 else { video.src = c.u; video.play(); }
