@@ -3,42 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AWEZA TV | Xtream Ready</title>
+    <title>AWEZA TV | Professional</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
         :root { --main: #e50914; --bg: #050505; --card: #121212; --text: #ffffff; }
         body, html { background-color: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; height: 100vh; overflow: hidden; }
 
+        /* Header */
         header { 
-            height: 65px; background: #000; display: flex; justify-content: space-between; 
-            align-items: center; padding: 0 25px; border-bottom: 2px solid var(--main);
+            height: 60px; background: #000; display: flex; justify-content: space-between; 
+            align-items: center; padding: 0 20px; border-bottom: 2px solid var(--main);
         }
-        .logo-text { font-size: 22px; font-weight: 900; color: var(--main); }
-        #clock { font-size: 18px; font-weight: bold; color: #eee; font-family: monospace; }
+        .logo-text { font-size: 20px; font-weight: 900; color: var(--main); letter-spacing: 1px; }
 
-        .player-wrapper { width: 100%; height: 42vh; background: #000; }
+        /* Player Area & Clock inside it */
+        .player-wrapper { width: 100%; height: 45vh; background: #000; position: relative; }
         video { width: 100%; height: 100%; object-fit: contain; }
+        
+        #clock { 
+            position: absolute; top: 15px; left: 20px; 
+            background: rgba(0, 0, 0, 0.5); padding: 5px 12px; 
+            border-radius: 5px; font-family: monospace; font-size: 16px; 
+            color: white; border-left: 3px solid var(--main);
+            backdrop-filter: blur(5px); z-index: 10; pointer-events: none;
+        }
 
-        .controls-area { background: #0a0a0a; padding: 10px 15px; border-bottom: 1px solid #1a1a1a; }
-        .tabs { display: flex; gap: 8px; margin-bottom: 10px; }
-        .tab-btn { flex: 1; padding: 10px; border-radius: 6px; border: 1px solid #333; background: #1a1a1a; color: white; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .tab-btn.active { background: var(--main); }
-
+        /* Controls Area */
+        .controls-area { background: #0a0a0a; padding: 10px; border-bottom: 1px solid #1a1a1a; }
+        .tabs { display: flex; gap: 8px; margin-bottom: 8px; }
+        .tab-btn { flex: 1; padding: 10px; border-radius: 6px; border: 1px solid #333; background: #1a1a1a; color: white; cursor: pointer; font-weight: bold; font-size: 13px; }
+        .tab-btn.active { background: var(--main); border-color: var(--main); }
         .search-input { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #222; background: #111; color: white; outline: none; box-sizing: border-box; }
 
-        .channel-grid { height: calc(58vh - 120px); overflow-y: auto; padding: 15px; display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; }
-        .card { background: var(--card); border-radius: 8px; padding: 12px; text-align: center; cursor: pointer; border: 1px solid #222; transition: 0.3s; position: relative; }
+        /* Grid */
+        .channel-grid { height: calc(55vh - 100px); overflow-y: auto; padding: 15px; display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px; }
+        .card { background: var(--card); border-radius: 8px; padding: 10px; text-align: center; cursor: pointer; border: 1px solid #222; transition: 0.3s; position: relative; }
         .card:hover { border-color: var(--main); transform: translateY(-3px); }
-        .card img { width: 50px; height: 50px; object-fit: contain; margin-bottom: 8px; }
-        .card span { font-size: 11px; font-weight: 600; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .fav-star { position: absolute; top: 5px; left: 5px; color: #444; font-size: 16px; }
+        .card img { width: 45px; height: 45px; object-fit: contain; margin-bottom: 5px; }
+        .card span { font-size: 10px; font-weight: 600; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .fav-star { position: absolute; top: 3px; left: 3px; color: #444; font-size: 15px; }
         .fav-star.active { color: #ffb400; }
 
-        /* Modal Settings */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; justify-content: center; align-items: center; overflow-y: auto; }
-        .modal-content { background: #111; padding: 25px; border-radius: 12px; width: 90%; max-width: 400px; border: 1px solid var(--main); }
+        /* Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; justify-content: center; align-items: center; }
+        .modal-content { background: #111; padding: 25px; border-radius: 12px; width: 90%; max-width: 380px; border: 1px solid var(--main); }
         .xtream-form input { width: 100%; padding: 10px; margin-bottom: 8px; border-radius: 5px; border: 1px solid #333; background: #000; color: white; box-sizing: border-box; }
-        .btn-action { width: 100%; padding: 12px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .btn-action { width: 100%; padding: 10px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; margin-top: 5px; }
         
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-thumb { background: var(--main); }
@@ -48,11 +58,11 @@
 
 <header>
     <div class="logo-text">AWEZA TV</div>
-    <div id="clock">00:00:00</div>
-    <button onclick="toggleModal(true)" style="background:none; border:none; color:white; font-size:22px; cursor:pointer;">⚙️</button>
+    <button onclick="toggleModal(true)" style="background:none; border:none; color:white; font-size:20px; cursor:pointer;">⚙️</button>
 </header>
 
 <div class="player-wrapper">
+    <div id="clock">00:00:00</div>
     <video id="videoPlayer" controls autoplay></video>
 </div>
 
@@ -61,7 +71,7 @@
         <button id="tab-all" class="tab-btn active" onclick="setMode('all')">📺 کەناڵەکان</button>
         <button id="tab-fav" class="tab-btn" onclick="setMode('fav')">⭐ دڵخواز</button>
     </div>
-    <input type="text" id="search" class="search-input" placeholder="گەڕان بۆ ناو..." onkeyup="render()">
+    <input type="text" id="search" class="search-input" placeholder="گەڕان..." onkeyup="render()">
 </div>
 
 <div class="channel-grid" id="grid"></div>
@@ -69,22 +79,16 @@
 <div id="modal" class="modal">
     <div class="modal-content">
         <h3 style="color:var(--main); margin-top:0; text-align:center;">ڕێکخستنی سەرچاوە</h3>
-        
         <div class="xtream-form">
-            <p style="font-size:12px; color:#888; margin-bottom:5px;">Xtream API داخڵ بکە:</p>
             <input type="text" id="xt_host" placeholder="Server URL (http://example.com:80)">
             <input type="text" id="xt_user" placeholder="Username">
             <input type="text" id="xt_pass" placeholder="Password">
             <button class="btn-action" style="background:var(--main); color:white" onclick="loginXtream()">بەستنەوەی Xtream</button>
         </div>
-
-        <hr style="border:0.1px solid #222; margin:20px 0;">
-        
-        <p style="font-size:12px; color:#888; margin-bottom:5px;">یان فایلی M3U:</p>
-        <button class="btn-action" style="background:#333; color:white" onclick="document.getElementById('file').click()">📁 هەڵبژاردنی فایل</button>
+        <hr style="border:0.1px solid #222; margin:15px 0;">
+        <button class="btn-action" style="background:#333; color:white" onclick="document.getElementById('file').click()">📁 بارکردنی فایلی M3U</button>
         <input type="file" id="file" style="display:none" onchange="fromFile(event)">
-        
-        <button class="btn-action" style="background:#444; color:white; margin-top:20px;" onclick="toggleModal(false)">داخستن</button>
+        <button class="btn-action" style="background:#444; color:white; margin-top:10px;" onclick="toggleModal(false)">داخستن</button>
     </div>
 </div>
 
@@ -105,34 +109,26 @@
 
     function toggleModal(s) { document.getElementById('modal').style.display = s ? 'flex' : 'none'; }
 
-    // Xtream API Login
+    // Xtream Login
     async function loginXtream() {
         const host = document.getElementById('xt_host').value.trim();
         const user = document.getElementById('xt_user').value.trim();
         const pass = document.getElementById('xt_pass').value.trim();
-
-        if(!host || !user || !pass) return alert("تکایە هەموو خانەکان پڕ بکەرەوە");
-
+        if(!host || !user || !pass) return alert("خانەکان پڕ بکەرەوە");
         const apiUrl = `${host}/player_api.php?username=${user}&password=${pass}&action=get_live_streams`;
-        
         try {
-            const response = await fetch(apiUrl);
-            const data = await response.json();
-            
+            const res = await fetch(apiUrl);
+            const data = await res.json();
             if(data && Array.isArray(data)) {
                 channels = data.map(item => ({
-                    n: item.name,
-                    l: item.stream_icon,
+                    n: item.name, l: item.stream_icon,
                     u: `${host}/live/${user}/${pass}/${item.stream_id}.m3u8`
                 }));
                 localStorage.setItem('az_data', JSON.stringify(channels));
-                render();
-                toggleModal(false);
-                alert("کەناڵەکان بە سەرکەوتوویی هێنران!");
+                render(); toggleModal(false);
+                alert("کەناڵەکان هاتن!");
             }
-        } catch (error) {
-            alert("کێشەیەک لە بەستنەوەدا هەیە، دڵنیابەرەوە لە لینک و زانیارییەکان");
-        }
+        } catch (e) { alert("هەڵە هەیە لە زانیارییەکان"); }
     }
 
     function fromFile(e) {
@@ -177,7 +173,6 @@
         grid.innerHTML = '';
         let list = channels.filter(c => c.n.toLowerCase().includes(q));
         if (currentMode === 'fav') list = list.filter(c => favorites.includes(c.n));
-
         list.forEach(c => {
             const isFav = favorites.includes(c.n);
             const d = document.createElement('div');
@@ -194,7 +189,6 @@
             grid.appendChild(d);
         });
     }
-
     if (channels.length > 0) render();
 </script>
 </body>
