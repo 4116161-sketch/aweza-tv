@@ -12,7 +12,6 @@
             background-color: var(--bg); color: var(--text); 
             font-family: 'Segoe UI', Tahoma, sans-serif; 
             margin: 0; padding: 0; height: 100vh; overflow: hidden;
-            touch-action: manipulation;
         }
 
         /* Header */
@@ -20,55 +19,57 @@
             height: 60px; background: #000; display: flex; justify-content: space-between; 
             align-items: center; padding: 0 20px; border-bottom: 2px solid var(--main);
         }
-        .logo-text { font-size: 20px; font-weight: 900; color: var(--main); }
+        .logo-text { font-size: 20px; font-weight: 900; color: var(--main); text-shadow: 0 0 10px rgba(229, 9, 20, 0.5); }
 
         /* Video Player */
         .player-wrapper { width: 100%; height: 40vh; background: #000; position: relative; }
         video { width: 100%; height: 100%; object-fit: contain; }
 
-        /* Controls */
+        /* Controls area */
         .controls-area { background: #0a0a0a; padding: 10px; border-bottom: 1px solid #1a1a1a; }
-        .tabs { display: flex; gap: 8px; margin-bottom: 8px; }
+        .tabs { display: flex; gap: 8px; margin-bottom: 10px; }
         .tab-btn { 
-            flex: 1; padding: 12px; border-radius: 6px; border: 1px solid #333; 
+            flex: 1; padding: 12px; border-radius: 8px; border: 1px solid #333; 
             background: #1a1a1a; color: white; cursor: pointer; font-weight: bold; 
+            transition: 0.3s;
         }
-        .tab-btn.active { background: var(--main); border-color: var(--main); }
+        .tab-btn.active { background: var(--main); border-color: var(--main); box-shadow: 0 0 10px rgba(229, 9, 20, 0.3); }
         
         .search-input { 
-            width: 100%; padding: 12px; border-radius: 6px; border: 1px solid #222; 
+            width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #222; 
             background: #111; color: white; outline: none; box-sizing: border-box; 
             text-align: right; font-size: 16px;
         }
 
-        /* Channel Grid - لێرە کێشەی سکڕۆڵی مۆبایلم چاک کردووە */
+        /* Channel Grid - Optimized for Mobile */
         .channel-grid { 
             height: calc(60vh - 120px); 
             overflow-y: auto; 
             padding: 15px; 
             display: grid; 
             grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); 
-            gap: 12px;
-            -webkit-overflow-scrolling: touch; /* بۆ سارفی و ئایفۆن */
-            touch-action: pan-y; /* ڕێگە دەدات بە پەنجە سکڕۆڵ بکرێت */
+            gap: 15px;
+            -webkit-overflow-scrolling: touch; 
+            touch-action: pan-y;
         }
 
         .card { 
-            background: var(--card); border-radius: 8px; padding: 10px; 
+            background: var(--card); border-radius: 12px; padding: 12px; 
             text-align: center; cursor: pointer; border: 1px solid #222; 
-            position: relative; transition: 0.2s;
+            position: relative; transition: 0.3s;
         }
-        .card img { width: 45px; height: 45px; object-fit: contain; margin-bottom: 5px; border-radius: 4px; }
+        .card:active { transform: scale(0.95); background: #1a1a1a; }
+        .card img { width: 50px; height: 50px; object-fit: contain; margin-bottom: 8px; border-radius: 6px; }
         .card span { font-size: 11px; font-weight: 600; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         
-        .fav-star { position: absolute; top: 5px; left: 5px; color: #444; font-size: 18px; padding: 5px; }
+        .fav-star { position: absolute; top: 5px; left: 5px; color: #444; font-size: 20px; transition: 0.2s; }
         .fav-star.active { color: #ffb400; }
 
-        /* Modal Settings */
+        /* Settings Modal */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; justify-content: center; align-items: center; }
-        .modal-content { background: #111; padding: 20px; border-radius: 12px; width: 90%; max-width: 380px; border: 1px solid var(--main); }
-        .xtream-form input { width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: 1px solid #333; background: #000; color: white; box-sizing: border-box; dir: ltr; }
-        .btn-action { width: 100%; padding: 12px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; margin-top: 5px; }
+        .modal-content { background: #111; padding: 25px; border-radius: 15px; width: 90%; max-width: 380px; border: 1px solid var(--main); }
+        .xtream-form input { width: 100%; padding: 12px; margin-bottom: 12px; border-radius: 8px; border: 1px solid #333; background: #000; color: white; box-sizing: border-box; dir: ltr; }
+        .btn-action { width: 100%; padding: 14px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; margin-top: 8px; font-size: 15px; }
         
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-thumb { background: var(--main); }
@@ -78,7 +79,7 @@
 
 <header>
     <div class="logo-text">AWEZA TV</div>
-    <button onclick="toggleModal(true)" style="background:none; border:none; color:white; font-size:22px; cursor:pointer;">⚙️</button>
+    <button onclick="toggleModal(true)" style="background:none; border:none; color:white; font-size:24px; cursor:pointer;">⚙️</button>
 </header>
 
 <div class="player-wrapper">
@@ -97,15 +98,15 @@
 
 <div id="modal" class="modal">
     <div class="modal-content">
-        <h3 style="color:var(--main); margin-top:0; text-align:center;">ڕێکخستن</h3>
+        <h3 style="color:var(--main); margin-top:0; text-align:center;">ڕێکخستنی سەرچاوە</h3>
         <div class="xtream-form">
-            <input type="text" id="xt_host" placeholder="Server (http://example.com:80)">
+            <input type="text" id="xt_host" placeholder="Server URL">
             <input type="text" id="xt_user" placeholder="Username">
             <input type="text" id="xt_pass" placeholder="Password">
             <button class="btn-action" style="background:var(--main); color:white" onclick="loginXtream()">بەستنەوەی Xtream</button>
         </div>
-        <hr style="border:0.1px solid #222; margin:15px 0;">
-        <button class="btn-action" style="background:#333; color:white" onclick="document.getElementById('file').click()">📁 بارکردنی فایلی M3U</button>
+        <hr style="border:0.5px solid #222; margin:20px 0;">
+        <button class="btn-action" style="background:#333; color:white" onclick="document.getElementById('file').click()">📁 بارکردنی M3U</button>
         <input type="file" id="file" style="display:none" onchange="fromFile(event)">
         <button class="btn-action" style="background:#444; color:white; margin-top:15px;" onclick="toggleModal(false)">داخستن</button>
     </div>
@@ -124,7 +125,7 @@
         const host = document.getElementById('xt_host').value.trim();
         const user = document.getElementById('xt_user').value.trim();
         const pass = document.getElementById('xt_pass').value.trim();
-        if(!host || !user || !pass) return alert("هەموو خانەکان پڕ بکەرەوە");
+        if(!host || !user || !pass) return alert("تکایە هەموو خانەکان پڕ بکەرەوە");
         const apiUrl = `${host}/player_api.php?username=${user}&password=${pass}&action=get_live_streams`;
         try {
             const res = await fetch(apiUrl);
@@ -144,4 +145,65 @@
         const reader = new FileReader();
         reader.onload = (ev) => {
             const lines = ev.target.result.split('\n');
-            let temp = [], name = '',
+            let temp = [], name = '', logo = '';
+            lines.forEach(l => {
+                if (l.includes('#EXTINF:')) {
+                    const logom = l.match(/tvg-logo="([^"]+)"/);
+                    logo = logom ? logom[1] : '';
+                    name = l.split(',').pop() || 'Channel';
+                } else if (l.startsWith('http')) {
+                    temp.push({ n: name.trim(), u: l.trim(), l: logo });
+                    name = ''; logo = '';
+                }
+            });
+            channels = temp;
+            localStorage.setItem('az_data', JSON.stringify(channels));
+            render(); toggleModal(false);
+        };
+        reader.readAsText(e.target.files[0]);
+    }
+
+    function setMode(mode) {
+        currentMode = mode;
+        document.getElementById('tab-all').classList.toggle('active', mode === 'all');
+        document.getElementById('tab-fav').classList.toggle('active', mode === 'fav');
+        render();
+    }
+
+    function toggleStar(name, event) {
+        event.stopPropagation();
+        favorites = favorites.includes(name) ? favorites.filter(f => f !== name) : [...favorites, name];
+        localStorage.setItem('az_favs', JSON.stringify(favorites));
+        render();
+    }
+
+    function render() {
+        const grid = document.getElementById('grid');
+        const q = document.getElementById('search').value.toLowerCase();
+        grid.innerHTML = '';
+        let list = channels.filter(c => c.n.toLowerCase().includes(q));
+        if (currentMode === 'fav') list = list.filter(c => favorites.includes(c.n));
+
+        list.forEach(c => {
+            const isFav = favorites.includes(c.n);
+            const d = document.createElement('div');
+            d.className = 'card';
+            d.innerHTML = `
+                <div class="fav-star ${isFav ? 'active' : ''}" onclick="toggleStar('${c.n}', event)">★</div>
+                <img src="${c.l || 'https://cdn-icons-png.flaticon.com/512/716/716429.png'}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/716/716429.png'">
+                <span>${c.n}</span>
+            `;
+            d.onclick = () => {
+                if (Hls.isSupported()) { 
+                    hls.loadSource(c.u); hls.attachMedia(video); 
+                    hls.on(Hls.Events.MANIFEST_PARSED, () => video.play()); 
+                } else { video.src = c.u; video.play(); }
+                window.scrollTo({top: 0, behavior: 'smooth'});
+            };
+            grid.appendChild(d);
+        });
+    }
+    if (channels.length > 0) render();
+</script>
+</body>
+</html>
